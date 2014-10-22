@@ -3,26 +3,24 @@
 */
 user = null;
 debug = false;
-//url = "http://192.168.1.201:8080/messaging/rest/";
-//url = "http://192.168.1.10:8080/messaging/rest/";
 url = "http://37.59.80.107/messaging/rest/";
-urlregister = "http://www.shooopapp.com/attivazione";
-
-//Variabile per la nuova pubblicazone
-pubblicazione = null;
+urlimage = "http://37.59.80.107/images/";
 
 //Variabile per il messaggio
 message = null;
 dlg = null;
 
-//Varabile per showcase
-showcase = null;
+//Filtro id
+actualfilterid = null;
 
-//Variabile per l'evento
-evento = null;
+//Massimo numero di righe per pagina
+rowforpage = 25;
 
-//Variabile per punteggio
-punti = null;
+//ID del Device
+deviceID = null;
+
+//Oggetto selezonato per il dettaglio
+actualobject = null;
 
 
 /* Configurazione Iniziale */
@@ -65,6 +63,9 @@ require([
     "dojox/mobile/PageIndicator",
     "dojo/request", 
     "dojo/json",
+    "dojox/mobile/Pane",
+    "dojo/number",
+    "dojox/mobile/Carousel",
     "dojo/_base/Deferred",
 	"dojox/mobile/parser",
 	"dojox/mobile",
@@ -73,7 +74,7 @@ require([
 	"dojox/mobile/ScrollableView",
 	"dojox/mobile/RoundRectStoreList",
 	"dojox/mobile/RoundRect",
-    "dojox/mobile/Carousel",
+     "dojox/mobile/StoreCarousel",
 	"dojox/mobile/TextBox",
     "dojox/uuid/generateRandomUuid",
     "dojox/mobile/ScrollablePane",    
@@ -95,18 +96,16 @@ require([
 	"dojox/mobile/SearchBox",
 	"dojox/mobile/SpinWheelDatePicker",
     "dojox/mobile/SimpleDialog",
-    "dojox/mobile/GridLayout",
-    "dojox/mobile/Pane",
+    "dojox/mobile/GridLayout",   
     "dojox/uuid/generateRandomUuid",
     "dojox/mobile/PullView",
     "dojox/mobile/IconContainer",
-    
     "dojox/mobile/RadioButton",
     "dojox/mobile/IconMenu",
     "dojox/mobile/Badge",
     "dojox/mobile/IconMenuItem"  
 	
-], function(ready, win, domConstruct, Memory, Observable, registry, on, dom,ProgressIndicator,stamp,locale,domStyle,ListItem,array,connect,domClass,ToolBarButton,IconItem,SimpleDialog,Button,SwapView,CarouselItem,Icon,PageIndicator,request,json) {
+], function(ready, win, domConstruct, Memory, Observable, registry, on, dom,ProgressIndicator,stamp,locale,domStyle,ListItem,array,connect,domClass,ToolBarButton,IconItem,SimpleDialog,Button,SwapView,CarouselItem,Icon,PageIndicator,request,json,Pane,number,Carousel) {
 	
 		var dateformat = "dd/MM/yyyy";
         var progoffer, progmessage, progshowcase,progeventi; 
@@ -119,7 +118,10 @@ require([
                 registry.byId("heading").addChild(new ToolBarButton(buttons[i]));             
             }               
         } 
-          
+        
+        storeofferimage = dojo.store.Observable(new Memory({}));
+        
+        
 		ready(function() {
 	    	document.addEventListener("deviceready", onDeviceReady, false);   
                         
@@ -133,55 +135,12 @@ require([
             //Logout Button
             var logout =  {class:"icon ion-log-out size-32", onTouchStart:logoutuser,  style:"float:left"};
             
-            //Button Offer
-            var imageoffer =  {class:"icon ion-images size-32", moveTo:'tabImagePubblicazioni', callback:loadofferimage, style:"float:right"};
-            var editoffer =  {class:"icon ion-edit size-32", onTouchStart:function(){registry.byId("list").startEdit();},style:"float:right"};
-            var uneditoffer =  {class:"icon ion-edit size-32", onTouchStart:function(){registry.byId("list").endEdit();},style:"float:right"};                    
-            var newoffer =  {class:"icon ion-ios7-plus-outline size-32", moveTo:'dettaglioPubblicazione', callback:nuovapubblicazione, style:"float:right"};
-            var publicoffer =  {class:"icon ion-ios7-cloud-upload-outline size-32", onClick:function(){pubblicacoffer()} , style:"float:right"};
-            var editingofferimage =  {class:"icon  ion-ios7-compose-outline size-32", onClick:function(){registry.byId("imageofferContainer").startEdit()},style:"float:right"};
-            var uneditingofferimage =  {class:"icon  ion-ios7-compose-outline size-32", onClick:function(){registry.byId("imageofferContainer").endEdit()},style:"float:right" };
-            var newofferimagegallery =  {class:"icon ion-image size-32", onClick:function(){takepictureoffer(Camera.PictureSourceType.PHOTOLIBRARY)},style:"float:right"};
-            var newofferimagecamera =  {class:"icon ion-ios7-camera size-32", onClick:function(){takepictureoffer(Camera.PictureSourceType.CAMERA)},style:"float:right"};
-                       
-            //Message Button
-            var newmessage =  {class:"icon ion-ios7-plus-outline size-32", moveTo:'dettaglioMessage', callback:nuovomessaggio, style:"float:right"};
-            var copymessage =  {class:"icon ion-ios7-copy-outline size-32", onClick:copiamessaggio, style:"float:right"};
-            var sendmessage =  {id:"sendmessageid", class:"icon ion-android-send size-32", onClick:inviamessaggio, style:"float:right"};
-            var editmessage =  {class:"icon ion-edit size-32", onTouchStart:function(){registry.byId("listmessage").startEdit();},style:"float:right"};
-            var uneditmessage =  {class:"icon ion-edit size-32", onTouchStart:function(){registry.byId("listmessage").endEdit();},style:"float:right"};
-            
-            //Showcase Button
-            var imageshowcase =  {class:"icon ion-images size-32", moveTo:'tabImageShowcase', callback:loadshowcaseimage, style:"float:right"};
-            var editingshowcaseimage =  {class:"icon  ion-ios7-compose-outline size-32", onClick:function(){registry.byId("imageshowcaseContainer").startEdit()},style:"float:right"};
-            var uneditingshowcaseimage =  {class:"icon  ion-ios7-compose-outline size-32", onClick:function(){registry.byId("imageshowcaseContainer").endEdit()},style:"float:right"};
-            var newshowcaseimagegallery =  {class:"icon ion-image size-32", onClick:function(){takepictureshowcase(Camera.PictureSourceType.PHOTOLIBRARY)},style:"float:right"};
-            var newshowcaseimagecamera =  {class:"icon ion-ios7-camera size-32", onClick:function(){takepictureshowcase(Camera.PictureSourceType.CAMERA)},style:"float:right"};
-            
-            //Event Button 
-            var imageevent =  {class:"icon ion-images size-32", moveTo:'tabImageEventi', callback:loadeventimage, style:"float:right"};
-            var editevent =  {class:"icon ion-edit size-32", onTouchStart:function(){registry.byId("listeventi").startEdit();},style:"float:right"};
-            var uneditevent =  {class:"icon ion-edit size-32", onTouchStart:function(){registry.byId("listeventi").endEdit();},style:"float:right"};                    
-            var newevent =  {class:"icon ion-ios7-plus-outline size-32", moveTo:'dettaglioEvento', callback:nuovoevento, style:"float:right"};
-            var publicevent =  {class:"icon ion-ios7-cloud-upload-outline size-32", onClick:function(){pubblicaevento()} , style:"float:right"};
-            var editingeventimage =  {class:"icon  ion-ios7-compose-outline size-32", onClick:function(){registry.byId("imageeventContainer").startEdit()},style:"float:right"};
-            var uneditingeventimage =  {class:"icon  ion-ios7-compose-outline size-32", onClick:function(){registry.byId("imageeventContainer").endEdit()},style:"float:right" };
-            var neweventimagegallery =  {class:"icon ion-image size-32", onClick:function(){takepictureevento(Camera.PictureSourceType.PHOTOLIBRARY)},style:"float:right"};
-            var neweventimagecamera =  {class:"icon ion-ios7-camera size-32", onClick:function(){takepictureevento(Camera.PictureSourceType.CAMERA)},style:"float:right"};    
-            
-            //Punti Button
-            var salvapunti =  {class:"icon ion-images size-32",  onTouchStart:savepunti, style:"float:right"};
-
-            //Immagine di test
-            var sync =  {class:"icon ion-ios7-refresh-empty size-32", onTouchStart:function(){syncall();},style:"float:right"};
-            var reset =  {class:"icon ion-alert-circled size-32", onTouchStart:function(){resettable();},style:"float:right"};            
-
             //Nascondo i search
-            domStyle.set(registry.byId('filterBoxOffer').domNode, 'display', 'none');
-            domStyle.set(registry.byId('filterBoxMessage').domNode, 'display', 'none');
-            domStyle.set(registry.byId('filterBoxCategory').domNode, 'display', 'none');
-            domStyle.set(registry.byId('filterBoxEvento').domNode, 'display', 'none');
+            domStyle.set('filterBoxNewsDiv', 'display', 'none');
                         
+            actualfilterid = "filterBoxNewsDiv";
+            domStyle.set('headingnews', 'display', 'inline');    
+            
             /****************************************************************************
             *   Aggiungo il controllo dei bottoni prima della transazione di apertura   *
             *****************************************************************************/                
@@ -189,1171 +148,58 @@ require([
                 showheadingbuttons([]);
                 domStyle.set('headinghome', 'display', 'inline');     
             });
-
-            dojo.connect(registry.byId("homepage"), "onBeforeTransitionIn", null, function(){
-                showheadingbuttons([]);
-                domStyle.set('headinghome', 'display', 'inline');               
-            });    
-
-            dojo.connect(registry.byId("homepage"), "onBeforeTransitionOut", null, function(){
-                showheadingbuttons([]);
-                domStyle.set('headinghome', 'display', 'none');               
+                           
+            dojo.connect(registry.byId("offerdetail"), "onBeforeTransitionIn", null, function(){
+                //Creo il dettaglio dell'offerta
+                createofferdetail(actualobject);            
             });
-
-            dojo.connect(registry.byId("ViewLogin"), "onAfterTransitionOut", null, function(){
-                showheadingbuttons([]);
-            });         
-            
-            /***************************************** OFFERTE **************************************************/
-
-			dojo.connect(registry.byId("tabPubblicazioni"), "onBeforeTransitionIn", null, function() {
-				showheadingbuttons([newoffer,editoffer]);
-                //Visualizzo il Search Box
-                domStyle.set(registry.byId('filterBoxOffer').domNode, 'display', 'inline');
-			});
-            
-            dojo.connect(registry.byId("tabPubblicazioni"), "onBeforeTransitionOut", null, function() {
-                domStyle.set(registry.byId('filterBoxOffer').domNode, 'display', 'none');
-			});
-		
-			dojo.connect(registry.byId("dettaglioPubblicazione"), "onBeforeTransitionIn", null, function() {
-               //Distruggo i bottoni e ne creo di nuovi
-               back.moveTo = "tabPubblicazioni";
-               back.transitionDir = -1;
-               showheadingbuttons([publicoffer,imageoffer,back]);               
-                domStyle.set('headingoffer', 'display', 'inline');
-			});
-                        
-            dojo.connect(registry.byId("dettaglioPubblicazione"), "onBeforeTransitionOut", null, function() {
-                salvapubblicazione(function(){});
-                domStyle.set('headingoffer', 'display', 'none');                
-            });           
-            
-            dojo.connect(registry.byId("detailofferdescription"), "onBeforeTransitionIn", null, function() {
-               //Distruggo i bottoni e ne creo di nuovi
-               back.moveTo = "dettaglioPubblicazione";
-               back.transitionDir = -1;
-               showheadingbuttons([back]); 
-                domStyle.set('headingoffer', 'display', 'inline');
-                setContentEditorResize("offerhtmleditor");
-			});
-            
-            dojo.connect(registry.byId("detailofferdescription"), "onBeforeTransitionOut", null, function() {
-                //Salvo l'html della pubblicazione sulla pagina
-                try{                 
-                    var htmldesc = getContentEditor("offerhtmleditor");
-                    registry.byId("description").set("label",htmldesc); 
-                    salvapubblicazione();
-                    
-                }catch(e){
-                    errorlog("SETTING HTML VALUE",e);
-                }
-                domStyle.set('headingoffer', 'display', 'none');
-			});           
-            
-            dojo.connect(registry.byId("tabImagePubblicazioni"), "onBeforeTransitionIn", null, function() {
-               //Distruggo i bottoni e ne creo di nuovi
-               back.moveTo = "dettaglioPubblicazione";
-               back.transitionDir = -1;
-               showheadingbuttons([back,editingofferimage,newofferimagegallery,newofferimagecamera]);   
-                domStyle.set('headingimage', 'display', 'inline');
-			});
-
-            dojo.connect(registry.byId("tabImagePubblicazioni"), "onBeforeTransitionOut", null, function() {
-                domStyle.set('headingimage', 'display', 'none');
-			});
-
-
-            dojo.connect(registry.byId("swapviewofferimage"), "onBeforeTransitionIn", null, function() {
-               //Distruggo i bottoni e ne creo di nuovi
-               back.moveTo = "tabImagePubblicazioni";
-               back.transitionDir = -1;
-               showheadingbuttons([back]);               
-			});
-
-
-            /***************************************** MESSAGGI **************************************************/
-            		
-			dojo.connect(registry.byId("tabMessaggi"), "onBeforeTransitionIn", null, function() {
-                showheadingbuttons([editmessage,newmessage]);
-                domStyle.set(registry.byId('filterBoxMessage').domNode, 'display', 'inline');
+             
+            connect.subscribe("/dojox/mobile/carouselSelect", function(carousel, itemWidget, itemObject, index){
+                //Visualizzo a tutto schermo l'immagine
+                var imgdetailview = registry.byId("imagedetail");            
                 
-          	});
-
-            dojo.connect(registry.byId("tabMessaggi"), "onBeforeTransitionOut", null, function() {
-                domStyle.set(registry.byId('filterBoxMessage').domNode, 'display', 'none');
-            });
+                alert(itemWidget);
                 
-            dojo.connect(registry.byId("dettaglioMessage"), "onBeforeTransitionIn", null, function(bean) {
-                back.moveTo = "tabMessaggi";
-                back.transitionDir = -1;
-                showheadingbuttons([back,sendmessage,copymessage]);    
-                domStyle.set('headingmessage', 'display', 'inline');
-                setContentEditorResize("messagehtmleditor");
-          	});
-                    
-            dojo.connect(registry.byId("dettaglioMessage"), "onBeforeTransitionOut", null, function() {
-                //Esco dal dettaglio e salvo il messaggio
-                savemessage();
-                domStyle.set('headingmessage', 'display', 'none');
-          	});
-              
-            /***************************************** VETRINA **************************************************/
-
-			dojo.connect(registry.byId("tabShowcase"), "onBeforeTransitionIn", null, function() {
-                try{
-                    domStyle.set('headingshowcase', 'display', 'inline');               
-                    showheadingbuttons([imageshowcase]);
-                    setContentEditorResize("showcasehtmleditor");
-                }catch(e){
-                    errorlog("SHOWCASE ERROR TRANSITION IN",e);
-                }
-			});
-
-            dojo.connect(registry.byId("tabShowcase"), "onBeforeTransitionIn", null, function() {
-                try{
-                    if(showcase && showcase.description) {
-                        setContentEditor("showcasehtmleditor",showcase.description);
-                                               
-                    }
-                }catch(e){
-                    errorlog("SHOWCASE ERROR TRANSITION IN",e);
-                }
-			});
-            
-            dojo.connect(registry.byId("tabShowcase"), "onBeforeTransitionOut", null, function() {
-                domStyle.set('headingshowcase', 'display', 'none');
-            });
-            
-            dojo.connect(registry.byId("tabImageShowcase"), "onBeforeTransitionIn", null, function() {
-               //Distruggo i bottoni e ne creo di nuovi
-               back.moveTo = "tabShowcase";
-               back.transitionDir = -1;
-               showheadingbuttons([back,editingshowcaseimage,newshowcaseimagegallery,newshowcaseimagecamera]);    
-               domStyle.set('headingimage', 'display', 'inline');
-			});
-            
-            dojo.connect(registry.byId("tabImageShowcase"), "onBeforeTransitionOut", null, function() {
-                domStyle.set('headingimage', 'display', 'none');
-            });
-
-            dojo.connect(registry.byId("swapviewshowcaseimage"), "onBeforeTransitionIn", null, function() {
-               //Distruggo i bottoni e ne creo di nuovi
-               back.moveTo = "tabImageShowcase";
-               back.transitionDir = -1;
-               showheadingbuttons([back]);               
-			});
-            
-            dojo.connect(registry.byId("tabShowcase"), "onBeforeTransitionOut", null, function(){
-				//Salvo la vetrina
-                if(showcase){
-                    startLoading();
-                    showcase.description = getContentEditor("showcasehtmleditor");
-                    if(!showcase.id) {
-                        showcase.showcase_id = getUUID(); 
-                        showcase.utente_id = user.utente_id;
-                        showcase.merchant_id = user.merchant_id;
-                        addShowcase(showcase, stopLoading);
-                    }else{
-                        updateShowcase(showcase, stopLoading);
-                    }    
-                }
-			});
-
-            /***************************************** EVENTI **************************************************/
-
-			dojo.connect(registry.byId("tabEventi"), "onBeforeTransitionIn", null, function() {
-				showheadingbuttons([newevent,editevent]);
-                //Visualizzo il Search Box
-                domStyle.set(registry.byId('filterBoxEvento').domNode, 'display', 'inline');
-			});
-            
-            dojo.connect(registry.byId("tabEventi"), "onBeforeTransitionOut", null, function() {
-                domStyle.set(registry.byId('filterBoxEvento').domNode, 'display', 'none');
-			});
-		
-			dojo.connect(registry.byId("dettaglioEvento"), "onBeforeTransitionIn", null, function() {
-               //Distruggo i bottoni e ne creo di nuovi
-               back.moveTo = "tabEventi";
-               back.transitionDir = -1;
-               showheadingbuttons([publicevent,imageevent,back]);               
-               domStyle.set('headingevent', 'display', 'inline');
-			});
-                        
-            dojo.connect(registry.byId("dettaglioEvento"), "onBeforeTransitionOut", null, function() {
-                salvaevento();
-                domStyle.set('headingevent', 'display', 'none');                
-            });           
-            
-            dojo.connect(registry.byId("detaileventdescription"), "onBeforeTransitionIn", null, function() {
-               //Distruggo i bottoni e ne creo di nuovi
-               back.moveTo = "dettaglioEvento";
-               back.transitionDir = -1;
-               showheadingbuttons([back]); 
-               domStyle.set('headingevent', 'display', 'inline');
-                setContentEditorResize("eventhtmleditor");
-			});
-            
-            dojo.connect(registry.byId("detaileventdescription"), "onBeforeTransitionOut", null, function() {
-                //Salvo l'html della pubblicazione sulla pagina
-                try{
-                    var htmldesc = getContentEditor("eventhtmleditor");
-                    registry.byId("description_evento").set("label",htmldesc); 
-                    salvaevento();
-                    
-                }catch(e){
-                    errorlog("SETTING HTML VALUE",e);
-                }
-                domStyle.set('headingevent', 'display', 'none');
-			});           
-            
-            dojo.connect(registry.byId("tabImageEventi"), "onBeforeTransitionIn", null, function() {
-               //Distruggo i bottoni e ne creo di nuovi
-               back.moveTo = "dettaglioEvento";
-               back.transitionDir = -1;
-               showheadingbuttons([back,editingeventimage,neweventimagegallery,neweventimagecamera]);   
-                domStyle.set('headingimage', 'display', 'inline');
-			});
-
-            dojo.connect(registry.byId("tabImageEventi"), "onBeforeTransitionOut", null, function() {
-                domStyle.set('headingimage', 'display', 'none');
-			});
-
-            dojo.connect(registry.byId("swapvieweventimage"), "onBeforeTransitionIn", null, function() {
-               //Distruggo i bottoni e ne creo di nuovi
-               back.moveTo = "tabImageEventi";
-               back.transitionDir = -1;
-               showheadingbuttons([back]);               
-			});
-
-            /***************************************** PUNTI **************************************************/
-			
-			dojo.connect(registry.byId("tabPunti"), "onBeforeTransitionIn", null, function(){
-   				showheadingbuttons([salvapunti]);                   
-                domStyle.set('headingpunti', 'display', 'inline');               
-			});
-
-            dojo.connect(registry.byId("tabPunti"), "onBeforeTransitionOut", null, function(){
-                domStyle.set('headingpunti', 'display', 'none');               
-			});
-
-            dojo.connect(registry.byId("detailpuntidescription"), "onBeforeTransitionIn", null, function() {
-                  back.moveTo = "tabPunti";
-                  back.transitionDir = -1;
-                  showheadingbuttons([salvapunti]); 
-                  if(punti.causale){              
-                    registry.byId("eventhtmleditor").set("value",punti.causale);
-                  }
-                  domStyle.set('headingpunti', 'display', 'inline');  
-          	});
-
-            dojo.connect(registry.byId("detailpuntidescription"), "onBeforeTransitionOut", null, function() {
-                var causale = registry.byId("eventhtmleditor").get("value");
-                punti.causale =  causale;
-                registry.byId("causalepunti").set("rightText",causale);                 
-                domStyle.set('headingpunti', 'display', 'none');                
-            });
-
-            /***************************************** MY APP **************************************************/
-			
-			dojo.connect(registry.byId("tabMyApp"), "onBeforeTransitionIn", null, function(){
-				showheadingbuttons([reset,sync]);                   
-                domStyle.set('headingpreference', 'display', 'inline');               
-			});
-
-            dojo.connect(registry.byId("tabMyApp"), "onBeforeTransitionOut", null, function(){
-                domStyle.set('headingpreference', 'display', 'none');               
-			});
-
-            dojo.connect(registry.byId("selectedPicker"), "onBeforeTransitionIn", null, function() {
-                domStyle.set(registry.byId('filterBoxCategory').domNode, 'display', 'inline');
-          	});
-
-            dojo.connect(registry.byId("selectedPicker"), "onBeforeTransitionOut", null, function() {
-                domStyle.set(registry.byId('filterBoxCategory').domNode, 'display', 'none');
+                //Elimino le immagini
+                imgdetailview.destroyDescendants();
+                                
+                var msgBox = domConstruct.create("img", {style:"width:100%;height:100%;z-index:-10;position:absolute;top:0;left:0", src:itemObject.src, onclick:closedetailimage}, imgdetailview.domNode); 
+                 
+                registry.byId("ViewApplication").performTransition("imagedetail", 1, "fade"); 
                 
-            });
-            
-            /***************************************** FINE **************************************************/
-
-            
-            /* GESTIONE EVENTI CAMPI OFFERTA */
-            registry.byId("date_from").on("click",function(){
-                getDateSpinner("date_from",function(newvalue){
-                    pubblicazione.date_from = newvalue;
-                });
-			});
-            
-            registry.byId("date_to").on("click", function(){
-                getDateSpinner("date_to",function(newvalue){
-                    pubblicazione.date_to = newvalue;
-                });
-			});
-            
-            registry.byId("quantity").on("click",function(){
-                getNumericSpinner("quantity",function(newvalue){
-                    pubblicazione.quantity = newvalue;
-                });
-			});
-            
-            registry.byId("price").on("click", function(){
-                getNumericSpinner("price",function(newvalue){
-                   pubblicazione.price = newvalue;
-                });
-			});
-            
-
-            /* GESTIONE LISTA OFFERTE */
-            var listoffer = registry.byId("list");
-            connect.connect(listoffer, "onStartEdit", null, function(){
-                try{
-                   showheadingbuttons([newoffer,uneditoffer]);
-                }catch(e){
-                    errorlog("STARTEDIT - 100",e);
-                }
-            });
-            
-            connect.connect(listoffer, "onEndEdit", null, function(){
-                try{
-                    showheadingbuttons([newoffer,editoffer]);
-                }catch(e){
-                    errorlog("ENDEDIT - 100",e);
-                }
-            });
-            
-            connect.connect(listoffer, "onDeleteItem", null, function(widget){
-                try {                    
-                    createConfirmation("Vuoi cancellare "+widget.label+"?",
-                                        function(){
-                                            startLoading();
-                                            dlg.hide();
-                                            dlg.destroyRecursive(false);
-                                            deleteoffer(widget, function(){
-                                               storepubblicazoni.remove(widget.id);
-                                               stopLoading();
-                                            });   
-                                        }, 
-                                        function(dlg){
-                                            dlg.hide();
-                                            dlg.destroyRecursive(false);
-                                        });                  
-                }catch(e){
-                    errorlog("DELETEITEM - 100",e);
-                }
-            });                
-      
-            /* GESTIONE DELLE IMMAGINI DELL'OFFERTA */
-            var ic = registry.byId("imageofferContainer");
-            connect.connect(ic, "onStartEdit", null, function(){
-                try{
-                   back.moveTo = "dettaglioPubblicazione";
-                   back.transitionDir = -1;
-                   showheadingbuttons([back,uneditingofferimage,newofferimagegallery,newofferimagecamera]);
-                } catch(e) {
-                    errorlog("STARTEDIT - 100",e);
-                }
-            });
-            
-            connect.connect(ic, "onEndEdit", null, function(){
-                try{
-                    back.moveTo = "dettaglioPubblicazione";
-                    back.transitionDir = -1;
-                    showheadingbuttons([back,editingofferimage,newofferimagegallery,newofferimagecamera]);
-                }catch(e){
-                    errorlog("ENDEDIT - 100",e);
-                }
+                //Swap a sinistra torna indietro                
             });
                     
-            connect.connect(ic, "onDeleteItem", null, function(widget){
-                try{
-                    //Elimino l'immagine dall'offerta
-                    startLoading();
-                    debuglog(widget.image_id);
-                    deleteImageOffer(widget.image_id, pubblicazione, function(){
-                        debuglog("IMMAGINE CANCELLATA");
-                        stopLoading();
-                    });                 
-                }catch(e){
-                    errorlog("DELETEITEM - 100",e);
-                }
-            });
-            
-            
-            connect.connect(ic, "onMoveItem", null, function(widget, from, to){
-                try{
-                    startLoading();
-                    moveImageOffer(widget,storepubblicazoni,pubblicazione,from,to,function(defaultimage){
-                        stopLoading();                        
-                    });
-                }catch(e){
-                    errorlog("MOVEITEM - 100",e);
-                }
-            });
-            
-            /* GESTIONE DEI MESSAGGI */
-            var listmessage = registry.byId("listmessage");
-            connect.connect(listmessage, "onStartEdit", null, function(){
-                try{
-                   showheadingbuttons([uneditmessage,newmessage]);
-                }catch(e){
-                    errorlog("STARTEDIT - 100",e);
-                }
-            });
-            
-            connect.connect(listmessage, "onEndEdit", null, function(){
-                try{
-                    showheadingbuttons([editmessage,newmessage]);                    
-                }catch(e){
-                    errorlog("ENDEDIT - 100",e);
-                }
-            });
-            
-            connect.connect(listmessage, "onDeleteItem", null, function(widget){
-                try {                    
-                    createConfirmation("Vuoi cancellare "+widget.label+"?",
-                                        function(e){
-                                            startLoading();
-                                            dlg.hide();
-                                            dlg.destroyRecursive(false);
-                                            deletemessage(widget, function(){
-                                               storemessage.remove(widget.id);
-                                               stopLoading();
-                                            });   
-                                        }, 
-                                        function(dlg){
-                                            dlg.hide();
-                                            dlg.destroyRecursive(false);
-                                        });                  
-                }catch(e){
-                    errorlog("DELETEITEM - 100",e);
-                }
-            });
-            
-            /* GESTIONE DELLE IMMAGINI DELLA VETRINA */
-            var icshowcase = registry.byId("imageshowcaseContainer");
-            connect.connect(icshowcase, "onStartEdit", null, function(){
-                try{
-                   back.moveTo = "tabShowcase";
-                   back.transitionDir = -1;
-                   showheadingbuttons([back,uneditingshowcaseimage,newshowcaseimagegallery,newshowcaseimagecamera]);
-                }catch(e){
-                    errorlog("STARTEDIT - 100",e);
-                }
-            });
-            
-            connect.connect(icshowcase, "onEndEdit", null, function(){
-                try{
-                    back.moveTo = "tabShowcase";
-                    back.transitionDir = -1;
-                    showheadingbuttons([back,editingshowcaseimage,newshowcaseimagegallery,newshowcaseimagecamera]);
-                }catch(e){
-                    errorlog("ENDEDIT - 100",e);
-                }
-            });
-                    
-            connect.connect(icshowcase, "onDeleteItem", null, function(widget){
-                try{
-                    //Elimino l'immagine dall'offerta
-                    startLoading();
-                    debuglog(widget.image_id);
-                    deleteImageShowcase(widget.image_id, showcase, function(){
-                        debuglog("IMMAGINE CANCELLATA");
-                        stopLoading();
-                    });                 
-                }catch(e){
-                    errorlog("DELETEITEM - 100",e);
-                }
-            });
-            
-            connect.connect(icshowcase, "onMoveItem", null, function(widget, from, to){
-                try{
-                    if(showcase){
-                        startLoading();
-                         moveImageShowcase(widget,showcase,from,to,function(){
-                            stopLoading();
-                        });
-                    }
-                }catch(e){
-                    errorlog("MOVEITEM - 100",e);
-                }
-            }); 
-
-            
-            /* GESTIONE LISTA EVENTI */
-            var listeventi = registry.byId("listeventi");
-            connect.connect(listeventi, "onStartEdit", null, function(){
-                try{
-                   showheadingbuttons([newevent,uneditevent]);
-                }catch(e){
-                    errorlog("STARTEDIT - 100",e);
-                }
-            });
-            
-            connect.connect(listeventi, "onEndEdit", null, function(){
-                try{
-                    showheadingbuttons([newevent,editevent]);
-                }catch(e){
-                    errorlog("ENDEDIT - 100",e);
-                }
-            });
-            
-            connect.connect(listeventi, "onDeleteItem", null, function(widget){
-                try {                    
-                    createConfirmation("Vuoi cancellare "+widget.label+"?",
-                                        function(){
-                                            startLoading();
-                                            dlg.hide();
-                                            dlg.destroyRecursive(false);
-                                            deleteevento(widget, function(){
-                                               storeeventi.remove(widget.id);
-                                               stopLoading();
-                                            });   
-                                        }, 
-                                        function(dlg){
-                                            dlg.hide();
-                                            dlg.destroyRecursive(false);
-                                        });                  
-                }catch(e){
-                    errorlog("DELETEITEM - 100",e);
-                }
-            });                
-      
-            /* GESTIONE DELLE IMMAGINI DELL'OFFERTA */
-            var icevent = registry.byId("imageeventContainer");
-            connect.connect(icevent, "onStartEdit", null, function(){
-                try{
-                   back.moveTo = "dettaglioEvento";
-                   back.transitionDir = -1;
-                   showheadingbuttons([back,uneditingeventimage,neweventimagegallery,neweventimagecamera]);
-                } catch(e) {
-                    errorlog("STARTEDIT - 100",e);
-                }
-            });
-            
-            connect.connect(icevent, "onEndEdit", null, function(){
-                try{
-                    back.moveTo = "dettaglioEvento";
-                    back.transitionDir = -1;
-                    showheadingbuttons([back,editingeventimage,neweventimagegallery,neweventimagecamera]);
-                }catch(e){
-                    errorlog("ENDEDIT - 100",e);
-                }
-            });
-                    
-            connect.connect(icevent, "onDeleteItem", null, function(widget){
-                try{
-                    //Elimino l'immagine dall'offerta
-                    startLoading();
-                    debuglog(widget.image_id);
-                    deleteImageEvento(widget.image_id, evento, function(){
-                        debuglog("IMMAGINE CANCELLATA");
-                        stopLoading();
-                    });                 
-                }catch(e){
-                    errorlog("DELETEITEM - 100",e);
-                }
-            });
-                        
-            connect.connect(icevent, "onMoveItem", null, function(widget, from, to){
-                try{
-                    startLoading();
-                    moveImageEvento(widget,storeeventi,evento,from,to,function(defaultimage){
-                        stopLoading();                        
-                    });
-                }catch(e){
-                    errorlog("MOVEITEM - 100",e);
-                }
-            });
-
-            registry.byId("date_from_evento").on("click",function(){
-                getDateSpinner("date_from_evento",function(newvalue){
-                    evento.date_from = newvalue;
-                });
-			});
-            
-            registry.byId("date_to_evento").on("click", function(){
-                getDateSpinner("date_to_evento",function(newvalue){
-                    evento.date_to = newvalue;
-                });
-			});   
-
-            /*  RACCOLTA PUNTI */
-            registry.byId("qtypunti").on("click",function(){
-                getNumericSpinner("qtypunti",function(newvalue){
-                    punti.qta = newvalue;
-                });
-			});
-            
-            registry.byId("eanpunti").on("click",function(){
-               //Apro il barcode scanner e recupero l'ean associato
-              /* scan(
-                  function (result) {
-                      alert("We got a barcode\n" +
-                            "Result: " + result.text + "\n" +
-                            "Format: " + result.format + "\n" +
-                            "Cancelled: " + result.cancelled);
-                      punti.ean = result.text;
-                      registry.byId("eanpunti").rightText = punti.ean;                     
-                  }, 
-                  function (error) {
-                      errorlog("Scanning failed: " + error);
-                  }
-                ); */                   
-			});
-            
-                      
             //TODO DA COMMENTARE PER NATIVA
-            //onDeviceReady(); 
+            onDeviceReady(); 
 	    });
 		
         function onDeviceReady() {
-                try{
-                    var devicePlatform = "chrome";
-                try{
-                    devicePlatform = device.platform;
-                }catch(e){
-
-                }
-                if(devicePlatform.toLowerCase().indexOf('win')==-1){
-                   tinymce.init({selector:'textarea#showcasehtmleditor'});                
-                   tinymce.init({selector:'textarea#offerhtmleditor'});                
-                   tinymce.init({selector:'textarea#messagehtmleditor'});                
-                   tinymce.init({selector:'textarea#eventhtmleditor'});                               
-                }
-            } catch(e) {
-                errorlog("ERROR INIT TINYMCE",e);
-            }     
             
+            try{
+                //Recupero id del dispositivo
+                deviceID = device.uuid;
+            }catch(e) {
+                deviceID = 'demo';
+            }           
             
-            //Inizializzo il Database
-            try {
-                //Visualizzo splashscreen
-                startLoading();
-                window.shopdb.db.init(function () {
-                    /* DB CARICATO */
-                    /* Lancio processo di sincronizzazione con il server */  
-                    //Inizializzo il valore delle variabile di default del file system
-                    try{
-                        //path = cordova.file.applicationStorageDirectory;
-                        path = cordova.file.dataDirectory;
-                        window.resolveLocalFileSystemURL(path,function(entry){
-                            var pathimages = "files";                        
-                            try{
-                                debuglog(entry.isDirectory+" - "+entry.fullPath);
-                                entry.getDirectory(pathimages, {create:true, exclusive: false}, function(dirEntry) {
-                                    window.rootimages = dirEntry;                                       
-                                    debuglog("DIR CREATA:"+dirEntry.toURL());  
-                                    //Effettuo login
-                                    try{
-                                       login(null,null);
-                                    }catch(e){
-                                        errorlog("ERROR SYNC",e);        
-                                    }
-                                }, function(e){errorlog("CREATE DIR - 101",e)});
-                            }catch(e){
-                                errorlog("CREATE DIR - 100",e);
-                            }
-                        },function(e){errorlog("ERRORE",e)});
-                    }catch(e){
-                        //FIX WIN PHONE 8  
-                        try{
-                        window.requestFileSystem(LocalFileSystem.PERSISTENT, 0, function(entry){
-                            var pathimages = "files";
-                            try{ 
-                                entry.root.getDirectory(pathimages, {create:true, exclusive: false}, function(dirEntry) {
-                                        window.rootimages = dirEntry;   
-                                        debuglog("DIR CREATA 2:"+dirEntry.toURL());  
-                                        //Effettuo login
-                                        try{
-                                           login(null,null);
-                                        }catch(e){
-                                            errorlog("ERROR SYNC 2",e);        
-                                        }
-                                    }, function(e){errorlog("CREATE DIR - 201",e)}); 
-                            }catch(e){
-                                errorlog("ERRORE CREAZIONE DIR",e);
-                            }
-                        }, function(e){
-                            errorlog("CREATE DIR - 102",e);
-                        }); 
-                        }catch(e){
-                            //Non faccio nulla
-                        }
-                    }
-      
-                    try{   
-                        //Nascondo lo splah screen
-                        navigator.splashscreen.hide();                      
-                    } catch(e) {
-                        errorlog("ERRORE VIEW APP - 100",e);
-                    }
-                    
-                    
-                });           
-            }catch(e){
-                errorlog("ERROR INIT DB",e);
+            try {                
+                //Inizializzo imgcache
+                ImgCache.init(function(){
+                    searchnews(null,false); 
+                }, function(){
+                    searchnews(null,false); 
+                });          
+            } catch(e){
+                errorlog("ERROR LOAD NEWS",e);
             } 
-                
-            //window.plugin.backgroundMode.disable();
-            
-            
-            //Test push notification
-            /*
-            var now  = new Date().getTime(),
-            _60_seconds_from_now = new Date(now + 5*1000);
-
-            window.plugin.notification.local.add({
-                id:      1,
-                title:   'ShooopApp',
-                message: 'Sincronizzazione....',
-                repeat:  'minutely',
-                date:    _60_seconds_from_now,
-                sound:    null,
-                autoCancel: true
-            });
-            
-            window.plugin.notification.local.ontrigger = function (id, state, json) {
-                
-                //Sincronizzo il dispositivo
-                setTimeout(function(){
-                    window.plugin.notification.local.cancel(id);                             
-                    
-                    var now  = new Date().getTime(),
-                    _60_seconds_from_now = new Date(now + 5*1000);
-                    //Add della nuova notifica
-                    window.plugin.notification.local.add({
-                        id:      1,
-                        title:   'ShooopApp',
-                        message: 'Sincronizzazione....',
-                        repeat:  'minutely',
-                        date:    _60_seconds_from_now,
-                        sound:    null,
-                        autoCancel: true
-                    });              
-                }, 3000);
-            };
-            
-             window.plugin.notification.local.onclick = function (id, state, json) {
-                alert("CLICK SYNC  ---> "+id+"--"+state);
-                //Cancello la notifica                                
-            };
-            */
         };
 
 
-        setContentEditorResize = function(id) {
-            
-            var devicePlatform = "chrome";
-            try{
-                devicePlatform = device.platform;
-            }catch(e){
-            
-            }
-            
-            if(devicePlatform.toLowerCase().indexOf('win')==-1){
-                //Non WIN8 
-                //Recupero l'altezza disponibile                
-                tinymce.get(id).theme.resizeTo('100%',window.innerHeight-92-105);              
-            } else {
-                //WIN 8 FIX  
-                domStyle.set(id, 'height', window.innerHeight-92-105);                 
-            }
-        };
-
-
-        getContentEditor = function(id) {
-            
-            var devicePlatform = "chrome";
-            try{
-                devicePlatform = device.platform;
-            }catch(e){
-            
-            }
-            
-            if(devicePlatform.toLowerCase().indexOf('win')==-1){
-                //Non WIN8  
-                return tinymce.get(id).getContent();
-            }else{
-                //WIN 8 FIX
-                
-                return registry.byId(id).get("value");                
-            }
-        };
-
-        setContentEditor = function(id,value){
-            var devicePlatform = "chrome";
-            try{
-                devicePlatform = device.platform;
-            }catch(e){
-            
-            }
-            if(devicePlatform.toLowerCase().indexOf('win')==-1){
-                //Non WIN8 
-                 return tinymce.get(id).setContent(value);
-            }else{
-                //WIN 8 FIX
-                registry.byId(id).set("value",value); 
-            }
-        };
-
-        /* Store delle pubblicazione in modalità Observable */
-        storepubblicazoni = dojo.store.Observable(new Memory({}));
-        storemessage = dojo.store.Observable(new Memory({}));
-        storecategory = dojo.store.Observable(new Memory({}));
-        storeeventi = dojo.store.Observable(new Memory({}));
-        store = dojo.store.Observable(new Memory({}));
-
-        /**
-        * Accesso all'app
-        * viene passato lo userid
-        * se non viene passato prendo quello di default
-        */
-        acessdemo = function acessdemo() {
-            user = new Object();
-            user.merchant_id = 'demo';
-            user.utente_id = 'demo';
-            //Eseguo la chiamata di ricerca
-            startLoading();
-            searchoffer(storepubblicazoni,function() { 
-                try{
-                    registry.byId('list').refresh();                            
-                    stopLoading();
-                }catch(e){
-                    alert(e);
-                }
-            });
-            
-            //Carico i messaggi
-            searchmessage(storemessage,function(){
-                registry.byId('listmessage').refresh();  
-            });
-            
-            //Carico showcase
-            getShowcase(user, function(result){
-                if(result && result.length>0){
-                    showcase = result[0];
-                }else{
-                    showcase = new Object();
-                    showcase.description = '';
-                }
-            });  
-        
-            //Carico le categorie
-            searchcategory(storecategory,function(){
-                registry.byId('listcategory').refresh();  
-                stopLoading();
-            });
-            
-            //Carico gli eventi
-            searcheventi(storeeventi,function(){
-               registry.byId('listeventi').refresh();  
-               stopLoading();
-            });
-            
-        };
-        
-        /**
-        * Apro il menu
-        */
-        openmenu = function(){
-            registry.byId('menu').show();
-                
-        };
-
-        closemenu = function(){
-            registry.byId('menu').hide();
-        };
-
-
-        /**
-        * Metodo per cancellazione pubblicazione
-        */
-        cancellapubblicazione = function cancellapubblicazione(){
-            try{
-             storepubblicazoni.remove(pubblicazione, function(){
-                 try{
-                    var children = registry.byId('list').getChildren();
-                    var arr = array.filter(children, function(w){
-                        return w.selected;
-                    });
-                    array.forEach(arr, function(listItem){
-                        registry.byId('list').removeChild(listItem);
-                        //Move to dettaglio
-                        //TODO DA FARE
-                    }); 
-                }catch(e){
-                    errorlog("CANCELLAPUBBLICAZIONE - 101",e);   
-                }
-             });
-             }catch(e){
-               errorlog("CANCELLAPUBBLICAZIONE - 100",e);   
-            }                
-        };
-      
-        /**
-        * Metodo per update della publicazione
-        */
-        salvapubblicazione = function salvapubblicazione(callback){
-            try {
-               
-                pubblicazione.title = registry.byId("title").get("value");
-                if(pubblicazione.title.length>0){
-                    startLoading();
-                    
-                    if(registry.byId("prenotable").get("value")=='off'){
-                        pubblicazione.prenotable = 0;
-                    }else{
-                        pubblicazione.prenotable = 1;
-                    }
-                    
-                    if(registry.byId("buyable").get("value")=='off'){
-                        pubblicazione.buyable = 0;
-                    }else{
-                        pubblicazione.buyable = 1;
-                    }                 
-                    
-                    //pubblicazione.description = registry.byId("description").get("label");
-                    
-                    pubblicazione.description = getContentEditor("offerhtmleditor");
-                    if(pubblicazione.id) {
-                        /* Recupero il servizio di update */                    
-                        try{
-                            updateoffer(pubblicazione,storepubblicazoni, function(){
-                                if(callback){
-                                    callback();
-                                }
-                                stopLoading();
-                            });
-                        }catch(e){
-                                errorlog("SALVAPUBBLICAZIONE - 101",e);   
-                        }                                      
-                    } else {
-                        var uuid = getUUID();
-                        pubblicazione.offer_id = uuid;
-                        pubblicazione.utente_id = user.utente_id;
-                        pubblicazione.date_created = new Date();
-                        pubblicazione.merchant_id = user.merchant_id;
-                        try {
-                            addoffer(pubblicazione,storepubblicazoni, function(){
-                                if(callback){
-                                    callback();
-                                }
-                                stopLoading();
-                            });
-                        }catch(e){
-                             errorlog("SALVAPUBBLICAZIONE - 102",e);   
-                        }
-                    }
-                }
-            }catch(e){
-               errorlog("SALVAPUBBLICAZIONE - 100",e);   
-            }
-        };
-        
-         pubblicacoffer = function(){
-            try {
-                if(pubblicazione.title.length>0){
-                    startLoading();
-                    pubblicazione.state = 'P';
-                    registry.byId("dettaglioPubblicazione").performTransition("tabPubblicazioni", -1, "slide");
-                }
-            }catch(e){
-               errorlog("SALVAPUBBLICAZIONE - 100",e);   
-            }
-        };
-    
-    
-        /**
-        *   Metodo che effettua un reset del form di pubblicazione
-        */
-        resetFormPubblicazione = function resetFormPubblicazone(){
-            try{
-                 registry.byId("title").set("value",'');
-                 registry.byId("description").set('label','');
-                 registry.byId("date_from").set("rightText",'');
-                 registry.byId("date_to").set("rightText",'');
-                 registry.byId("quantity").set("rightText",'');
-                 registry.byId("price").set("rightText",'');
-                 registry.byId("cat1").set("rightText",'');
-                 registry.byId("buyable").set("value",'off');
-                 registry.byId("prenotable").set("value",'off');
-              }catch(e){
-               errorlog("RESETFORMPUBBLICAZIONE - 100",e);   
-            } 
-        }
-            
-        /**
-        * Metodo per la nuova pubblicazione
-        *
-        */
-        nuovapubblicazione = function nuovapubblicazione(){
-            try{
-                //Reset del form       
-                resetFormPubblicazione();
-                
-                //Inizializzo la Pubblicazione
-                pubblicazione = new Object();            
-
-                //Recupero valori di default
-                //TODO DA FARE
-            }catch(e){
-               errorlog("NUOVAPUBBLICAZONE - 100",e);   
-            }        
-        };
-    		
-		/**
-		 * Gestione del dettaglio della pubblicazione
-		 * Caricamento del dettaglio dallo store
-		 * 
-		 * */
-		setDetailPubblicazione = function setDetailPubblicazione(bean) {
-            try{
-                pubblicazione = bean;  
-                resetFormPubblicazione();
-                registry.byId("title").set("value",bean.title);
-                if(bean.description){registry.byId("description").set("label",bean.description);}                
-                if(bean.date_from){registry.byId("date_from").set("rightText",locale.format(bean.date_from,{selector: "date", formatLength: "short", datePattern:dateformat}));}
-                if(bean.date_to){registry.byId("date_to").set("rightText",locale.format(bean.date_to,{selector: "date", formatLength: "short", datePattern:dateformat}));}
-                if(bean.quantity){registry.byId("quantity").set("rightText",(bean.quantity).toString().replace('.',','));}
-                if(bean.price){registry.byId("price").set("rightText",(bean.price).toString().replace('.',','));}
-                if(bean.cat_1){registry.byId("cat1").set("rightText",bean.cat_1_desc);}
-                
-                if(bean.buyable){
-                    if(bean.buyable == 1){
-                        registry.byId("buyable").set("value",'on');    
-                    }else{
-                        registry.byId("buyable").set("value",'off');
-                    }               
-                }                
-                
-                if(bean.prenotable){
-                    if(bean.prenotable == 1){
-                        registry.byId("prenotable").set("value",'on');    
-                    }else{
-                        registry.byId("prenotable").set("value",'off');
-                    }                   
-                }                
-            }catch(e){
-                errorlog("DETTAGLIO PUBBLICAZIONE - 100",e);                   
-            }
-		};  
-    
-        /**
-        * Setto la categoria
-        */
-        setCategoryPubblicazione = function(bean){
-            try{
-                pubblicazione.cat_1 = bean.category_id;
-                //Setto la visualizzazione
-                registry.byId("cat1").set("rightText",bean.label);
-            }catch(e){
-                errolog("SETTING CATEGORIA - 100",e);
-            }
-        }  
-    
-        /*
-        * Setto l'html dell'offerta
-        */
-        sethtmldescriptionoffer = function(){
-            try{
-                startLoading();                
-                setContentEditor("offerhtmleditor",registry.byId("description").label);
-                stopLoading(); 
-            }catch(e){
-                errorlog("ERROR",e);
-            }            
-        };    
-    
-        /**
-         * Metodo che carica le immagini del dettaglio
-         * 
-         */
-        loadofferimage = function loadofferimage() {            
-            var container = registry.byId("imageofferContainer");
-            container.destroyDescendants();
-            getImageOffer(pubblicazione,function(images) {
-                try{
-                    url = "";
-                    if(window.rootimages){
-                        url = window.rootimages.toURL();
-                    }
-                    for(i=0;i<images.length;i++) {
-                        if(images[i].predefined){
-                        container.addChild(new IconItem({icon:url+images[i].full_path_name, offer_image_id:images[i].offer_image_id, image_id:images[i].image_id, moveTo:'swapviewofferimage', clickable:true, callback:loadswapofferimage}),0);
-                        }else{
-                        container.addChild(new IconItem({icon:url+images[i].full_path_name, offer_image_id:images[i].offer_image_id, image_id:images[i].image_id, moveTo:'swapviewofferimage', clickable:true, callback:loadswapofferimage}));
-                        }
-                    } 
-                }catch(e){
-                    errorlog("LOADOFFERIMAGE - 100",e);
-                }
-            });                
-        };
-            
-        /*
-        * Gestione del metodo di recupero dell'immagine
-        */
-        takepictureoffer = function(sourcetype) {
-            try{
-            var cameraPopoverHandle = navigator.camera.getPicture(
-                        function(urlimg){
-                            try{
-                                var order = registry.byId("imageofferContainer").getChildren().length;
-                                order = order+1;
-                                addImageOffer(pubblicazione,urlimg,order,storepubblicazoni, function(url,beanentry) {
-                                    try{
-                                        /* Aggiungo l'immagine in visualizzazone */
-                                        var container = registry.byId("imageofferContainer");
-                                        container.addChild(new IconItem({icon:url, bean:beanentry, moveTo:'swapviewofferimage', clickable:true, callback:loadswapofferimage}));                                
-                                    }catch(error){
-                                        errorlog("RECUPERO CAMERA - 102",error);
-                                    }
-                                })  
-                            }catch(error){
-                                errorlog("RECUPERO CAMERA - 103",error);
-                            }
-                        },
-                        function(error){
-                            errorlog("RECUPERO CAMERA - 101",error);
-                        },
-                        { destinationType: Camera.DestinationType.FILE_URI,
-                          sourceType: sourcetype
-                        });
-            }catch(e){
-                errorlog("RECUPERO CAMERA - 100",e);
-            }
-        };
-        
-        /*
-        * Caricamento immagini in SwapView
-        *
-        */
-        loadswapofferimage = function(){
-            //Recupero le immagini dal contenitore iconcontainer in ordine e creo lo swap
-            try{
-                startLoading();                
-                //Rimuovo le immagini dello swap
-                var swapcontainer = registry.byId("swapviewofferimage");
-                swapcontainer.destroyDescendants();
-                var imagecontainer = registry.byId("imageofferContainer");
-                var childrenimage = imagecontainer.getChildren();
-                for(i=0;i<childrenimage.length;i++){   
-                    view = new SwapView();
-                    view.addChild(new Icon({icon:childrenimage[i].icon}));
-                    swapcontainer.addChild(view);
-                }                 
-                page = new PageIndicator();
-                swapcontainer.addChild(page,0);
-                page.startup();                            
-                stopLoading();
-            }catch(e){
-                errorlog("LOAD SWAP VIEW - 100",e);
-            }       
-        };
           
         /* Funzione di pull per sincronizzare le offerte */
-        onPullOffer = function(view, y, h){
-          dom.byId("msg1offer").innerHTML = percent < 100 ? "Tira per aggiornare le offerte" : "Rilascia per aggiornare le offerte";
+        onPullNews = function(view, y, h){
+          dom.byId("msg1offer").innerHTML = percent < 100 ? "Tira per aggiornare le news" : "Rilascia per aggiornare le news";
           y = y > h ? h : y;
           var percent = y / h * 100;
           var deg = -1.8 * percent + 360;
@@ -1361,575 +207,198 @@ require([
         };
         
         /* Funzione di Pulled per sincronizzare */
-        onPulledOffer = function(view){
+        onPulledNews = function(view){
           if(!progoffer){
 					progoffer = new ProgressIndicator({size:20, center:false});
-				}
+            }
 			if(progoffer.timer){ return; }
 			dom.byId("iconoffer").style.display = "none";
 			dom.byId("msg1offer").innerHTML = "Attendere...";
 			dom.byId("progoffer").appendChild(progoffer.domNode);
 			progoffer.start();
              
-            //Effettuo la chiamata di sync con il master                
-            synctable(['offer','offer_image','image'], function() {
-                dom.byId("msg1offer").innerHTML = "Sincronizzazione Immagini...";
-                 syncimages(function(){
-                     registry.byId("tabPubblicazioni").slideTo({y:0}, 0.3, "ease-out");
-                     progoffer.stop();
-                     dom.byId("iconoffer").style.display = "inline";  
-                     
-                     //Ricarico i valori
-                     startLoading();
-                     searchoffer(storepubblicazoni,function(){                            
-                         registry.byId('list').refresh();                            
-                         stopLoading();
-                     });             
-                 });               
-            });            
+            //TODO Aggiungere filtro
+            searchnews(null,false,function(){
+                registry.byId("tabNews").slideTo({y:0}, 0.3, "ease-out");
+                progoffer.stop();
+                dom.byId("iconoffer").style.display = "inline"; 
+            });                      
          };
-    
-    
-        /* Salva il messaggio */
-        savemessage = function(){
-            startLoading();
-            message.description = getContentEditor("messagehtmleditor"); 
-            if(message.id){
-                //update messaggio
-                try{
-                    updatemessage(message,storemessage, function(){
-                        stopLoading();
-                    });
-                }catch(e){
-                        errorlog("SALVAPUBBLICAZIONE - 101",e);   
-                }                  
-            } else {
-                //nuovo messaggio
-                var uuid = getUUID();
-                message.message_id = uuid;
-                message.utente_id = user.utente_id;
-                message.date_created = new Date();
-                message.merchant_id = user.merchant_id;
-                try {
-                    addmessage(message,storemessage, function(){
-                        stopLoading();
-                    });
-                }catch(e){
-                     errorlog("SALVAMESSAGGIO - 102",e);   
-                }                    
-            }              
-        };   
-        
-        /* Setto il dettaglio del messaggio */
-        setDetailMessage = function(bean){
-            try{
-                message = bean;
-                
-                setContentEditor("messagehtmleditor",bean.description);
-                
-                if(message.state=='W'){
-                    //Stato di modifica devo ancora inviare il messaggio   
-                    //tinymce.get("messagehtmleditor").getBody().setAttribute('contenteditable', false);
-                    //registry.byId("messagehtmleditor").set('disabled',false);                    
+
+         opensearch = function(){
+            if(actualfilterid){
+                var type = domStyle.get(actualfilterid, 'display');
+                if(type=='none'){
+                    domStyle.set(actualfilterid, 'display', 'block');
                 }else{
-                    //tinymce.get("messagehtmleditor").getBody().setAttribute('contenteditable', true);
-                    //registry.byId("messagehtmleditor").set('disabled',true);                    
-                    registry.byId("sendmessageid").destroyRecursive();
-                }               
-            }catch(e){
-                errorlog("ERROR",e);
-            } 
-        };
-                
-        /**
-        * Nuovo messaggio
-        */
-        nuovomessaggio = function(){
-            try{
-                //Inizializzo la Pubblicazione
-                message = new Object();            
-                message.description = '';               
-                message.state = 'W';
-                //Visualizzo il dettaglio  
-                
-                setContentEditor("messagehtmleditor","");
-                //registry.byId("messagehtmleditor").set("value",""); 
-                registry.byId("tabMessaggi").performTransition("dettaglioMessage", 1, "slide");                
-            } catch(e) {
-               errorlog("NUOVAPUBBLICAZONE - 100",e);   
+                    domStyle.set(actualfilterid, 'display', 'none');
+                }
             }        
-        };
-        
-        /*
-        * Copia del messaggio
-        */
-        copiamessaggio = function(){
-            try{
-                startLoading();
-                //Setto i dati di messaggio
-                var uuid = getUUID();
-                message = new Object()
-                message.state = 'W';                
-                savemessage();              
-            }catch(e){
-               errorlog("COPIA MESSAGGIO - 100",e);   
-            }
-        };
-                
-        /*
-        * Invio del messaggio
-        */
-        inviamessaggio = function(){
-            try{
-                startLoading();
-                //Setto i dati di messaggio
-                message.state = 'S';
-                message.description = getContentEditor("messagehtmleditor");
-                try {
-                    updatemessage(message,storemessage, function(){
-                        registry.byId("dettaglioMessage").performTransition("tabMessaggi", -1, "slide");
-                        stopLoading();
-                    });
-                }catch(e){
-                     errorlog("INVIA MESSAGGIO - 102",e);   
-                }                
-            }catch(e){
-               errorlog("INVIA MESSAGGIO - 100",e);   
-            }
-        };
-                        
-        /* Funzione di pull per sincronizzare dei messaggi */
-        onPullMessage = function(view, y, h){
-          dom.byId("msg1message").innerHTML = percent < 100 ? "Tira per aggiornare i messaggi" : "Rilascia per aggiornare i messaggi";
-          y = y > h ? h : y;
-          var percent = y / h * 100;
-          var deg = -1.8 * percent + 360;
-          dom.byId("iconmessage").style.webkitTransform = "rotate(" + deg + "deg)";
-        };
-        
-        /* Funzione di Pulled per sincronizzare */
-        onPulledMessage = function(view){
-          if(!progmessage){
-					progmessage = new ProgressIndicator({size:40, center:false});
-			}
-			if(progmessage.timer){ return; }
-			dom.byId("iconmessage").style.display = "none";
-			dom.byId("msg1message").innerHTML = "Attendere...";
-            
-			dom.byId("progmessage").appendChild(progmessage.domNode);
-			progmessage.start();
-             
-            //Effettuo la chiamata di sync con il master                
-            synctable(['message'], function(){
-                registry.byId("tabMessaggi").slideTo({y:0}, 0.3, "ease-out");
-                progmessage.stop();
-                dom.byId("iconmessage").style.display = "inline";  
-                
-                //Ricarico i valori
-                startLoading();
-                searchmessage(storemessage,function(){                            
-                  registry.byId('listmessage').refresh();                            
-                  stopLoading();
-                });
-                
-            });            
          };
-    
-        /*
-        * Gestione del metodo di recupero dell'immagine per la vetrina
-        */
-        takepictureshowcase = function (sourcetype) {
-            try{
-            var cameraPopoverHandle = navigator.camera.getPicture(
-                        function(urlimg){
-                            try{
-                                var order = registry.byId("imageshowcaseContainer").getChildren().length;
-                                addImageShowcase(showcase,urlimg,order, function(url,beanentry) {
-                                    try{
-                                        /* Aggiungo l'immagine in visualizzazone */
-                                        var container = registry.byId("imageshowcaseContainer");
-                                        container.addChild(new IconItem({icon:url, bean:beanentry, moveTo:'swapviewshowcaseimage', clickable:true, callback:loadswapshowcaseimage}));                                
-                                    }catch(error){
-                                        errorlog("RECUPERO CAMERA - 102",error);
-                                    }
-                                })  
-                            }catch(error){
-                                errorlog("RECUPERO CAMERA - 103",error);
-                            }
-                        },
-                        function(error){
-                            errorlog("RECUPERO CAMERA - 101",error);
-                        },
-                        { destinationType: Camera.DestinationType.FILE_URI,
-                          sourceType: sourcetype
-                        });
-            }catch(e){
-                errorlog("RECUPERO CAMERA - 100",e);
-            }
-        };
+
+/****************************************************************************************************************
+*                                   Recupero delle news
+****************************************************************************************************************/
+
+closedetailimage = function() {
+    alert("CHIUDI");
+   registry.byId("ViewApplication").performTransition("imagedetail", 1, "fade");  
+};
+
+searchnews = function(filter,append,callback){
+    //Carico le News
+    getNews(request,json,filter,1,function(news){
         
-        /**
-         * Metodo che carica le immagini della vetrina
-         * 
-         */
-        loadshowcaseimage = function loadofferimage() {            
-            var container = registry.byId("imageshowcaseContainer");
-            container.destroyDescendants();
-            getImageShowcase(showcase,function(images){
-                try{
-                    for(i=0;i<images.length;i++) { 
-                        container.addChild(new IconItem({icon:window.rootimages.toURL()+images[i].full_path_name, image_id:images[i].image_id, moveTo:'swapviewshowcaseimage', clickable:true, callback:loadswapshowcaseimage}));
-                    }
-                }catch(e){
-                    errorlog("LOADSHOWCASEIMAGE - 100",e);
-                }
-            });                
-        };
-                             
-        /*
-        * Caricamento immagini in SwapView della vetrina
-        *
-        */
-        loadswapshowcaseimage = function(){
-            //Recupero le immagini dal contenitore iconcontainer in ordine e creo lo swap
-            try{
-                startLoading();                
-                //Rimuovo le immagini dello swap
-                var swapcontainer = registry.byId("swapviewshowcaseimage");
-                swapcontainer.destroyDescendants();
-                var imagecontainer = registry.byId("imageshowcaseContainer");
-                var childrenimage = imagecontainer.getChildren();
-                for(i=0;i<childrenimage.length;i++){   
-                    view = new SwapView();
-                    view.addChild(new Icon({icon:childrenimage[i].icon}));
-                    swapcontainer.addChild(view);
-                }                 
-                page = new PageIndicator();
-                swapcontainer.addChild(page,0);
-                page.startup();                            
-                stopLoading();
-            }catch(e){
-                errorlog("LOAD SWAP VIEW - 100",e);
-            }       
-        };  
-
-
-
-
-/***************************************************************************************************
-*                                           EVENTI                                                 *
-****************************************************************************************************/
-
-        /**
-        * Metodo per cancellazione pubblicazione
-        */
-        cancellaevento = function(){
-            try{
-             storeeventi.remove(evento, function(){
-                 try{
-                    var children = registry.byId('listeventi').getChildren();
-                    var arr = array.filter(children, function(w){
-                        return w.selected;
-                    });
-                    array.forEach(arr, function(listItem){
-                        registry.byId('listeventi').removeChild(listItem);
-                        //Move to dettaglio
-                        //TODO DA FARE
-                    }); 
-                }catch(e){
-                    errorlog("CANCELLA EVENTO - 101",e);   
-                }
-             });
-             }catch(e){
-               errorlog("CANCELLA EVENTO - 100",e);   
-            }                
-        };
-      
-        /**
-        * Metodo per update della publicazione
-        */
-        salvaevento = function(callback){
-            try {
-               
-                evento.title = registry.byId("title_evento").get("value");
-                if(evento.title.length>0){
-                    startLoading();
-                    evento.description = registry.byId("description_evento").get("label");
-                    if(evento.id) {
-                        /* Recupero il servizio di update */                    
-                        try{
-                            updateevento(evento,storeeventi, function(){
-                                if(callback){
-                                    callback();
-                                }
-                                stopLoading();
-                            });
-                        }catch(e){
-                                errorlog("SALVA EVENTO - 101",e);   
-                        }                                      
-                    } else {
-                        var uuid = getUUID();
-                        evento.event_id = uuid;
-                        evento.utente_id = user.utente_id;
-                        evento.date_created = new Date();
-                        evento.merchant_id = user.merchant_id;
-                        try {
-                            addevento(evento,storeeventi, function(){
-                                if(callback){
-                                    callback();
-                                }
-                                stopLoading();
-                            });
-                        }catch(e){
-                             errorlog("SALVA EVENTO - 102",e);   
-                        }
-                    }
-                }
-            }catch(e){
-               errorlog("SALVA EVENTO - 100",e);   
-            }
-        };
+        var gridnews = registry.byId("gridnews");
         
-         pubblicaevento = function(){
-            try {
-                if(evento.title.length>0){
-                    startLoading();
-                    evento.state = 'P';
-                    salvaevento(function(){
-                        registry.byId("dettaglioEvento").performTransition("tabEventi", -1, "slide");
-                    });                    
-                }
-            }catch(e){
-               errorlog("PUBBLICA EVENTO - 100",e);   
-            }
-        };
-    
-    
-        /**
-        *   Metodo che effettua un reset del form di evento
-        */
-        resetFormEvento = function(){
-            try{
-                 registry.byId("title_evento").set("value",'');
-                 registry.byId("description_evento").set('label','');
-                 registry.byId("date_from_evento").set("rightText",'');
-                 registry.byId("date_to_evento").set("rightText",'');                 
-              }catch(e){
-               errorlog("RESET FORM EVENTO - 100",e);   
-            } 
-        };
-            
-        /**
-        * Metodo per il nuovo evento
-        *
-        */
-        nuovoevento = function(){
-            try{
-                //Reset del form       
-                resetFormEvento();
+        //Elimino le vecchie news
+        if(!append){
+            gridnews.destroyDescendants();        
+        }
+        
+        //Ciclo le news 
+        for(i=0;i<news.length;i++){                        
+            //Aggiungo i Pane e carico le immagini
+            try{  
+                object_type = news[i].objectType;
+                var html = null;
+                //Controllo il tipo di oggetto
+                if(object_type=='O'){
+                    //Offerte
+                    html = news[i].title;
+                }else if(object_type=='M'){
+                    //Messaggi
+                    if(news[i].description){
+                        html = news[i].description;
+                    }
+                }else if(object_type=='E'){
+                    //Eventi
+                    html = news[i].title;
+                } 
                 
-                //Inizializzo la Pubblicazione
-                evento = new Object();            
+                if(html){
+                    pane = new Pane();                                       
+                    pane.set("bean",news[i]);
+                    pane.on("click",function(){opendetailnews(this.id)});
+                                        
+                    var msgBox = domConstruct.create("div", {class: "innerPane"}, pane.domNode);
+                    if(object_type != 'M'){
+                        var srcimage = urlimage+news[i].fullPathName;
+                        var imgBox = domConstruct.create("img", {src:srcimage, class:"innerPaneImg"}, msgBox);
 
-                //Recupero valori di default
-                //TODO DA FARE
-            }catch(e){
-               errorlog("NUOVO EVENTO - 100",e);   
-            }        
-        };
-    		
-		/**
-		 * Gestione del dettaglio dell'evento
-		 * Caricamento del dettaglio dallo store
-		 * 
-		 * */
-		setDetailEvento = function(bean) {
-            try{
-                evento = bean;  
-                resetFormEvento();
-                registry.byId("title_evento").set("value",bean.title);
-                if(bean.description){registry.byId("description_evento").set("label",bean.description);}                
-                if(bean.date_from){registry.byId("date_from_evento").set("rightText",locale.format(bean.date_from,{selector: "date", formatLength: "short", datePattern:dateformat}));}
-                if(bean.date_to){registry.byId("date_to_evento").set("rightText",locale.format(bean.date_to,{selector: "date", formatLength: "short", datePattern:dateformat}));}               
-            }catch(e){
-                errorlog("DETTAGLIO PUBBLICAZIONE - 100",e);                   
-            }
-		};  
-    
-        /*
-        * Setto l'html dell'evento
-        */
-        sethtmldescriptionevento = function(){
-            try{
-                startLoading();
-                setContentEditor("eventhtmleditor",registry.byId("description_evento").label);
-                stopLoading(); 
-            }catch(e){
-                errorlog("ERROR",e);
-            }            
-        };    
-    
-        /**
-         * Metodo che carica le immagini del dettaglio dell'evento
-         * 
-         */
-        loadeventimage = function() {            
-            var container = registry.byId("imageeventContainer");
-            container.destroyDescendants();
-            getImageEvento(evento,function(images) {
-                try{
-                    url = "";
-                    if(window.rootimages){
-                        url = window.rootimages.toURL();
-                    }
-                    for(i=0;i<images.length;i++) {
-                        if(images[i].predefined){
-                        container.addChild(new IconItem({icon:url+images[i].full_path_name, event_image_id:images[i].event_image_id, image_id:images[i].image_id, moveTo:'swapvieweventimage', clickable:true, callback:loadswapeventimage}),0);
-                        }else{
-                        container.addChild(new IconItem({icon:url+images[i].full_path_name, event_image_id:images[i].event_image_id, image_id:images[i].image_id, moveTo:'swapvieweventimage', clickable:true, callback:loadswapeventimage}));
-                        }
-                    } 
-                }catch(e){
-                    errorlog("LOAD EVENT IMAGE - 100",e);
-                }
-            });                
-        };
-            
-        /*
-        * Gestione del metodo di recupero dell'immagine
-        */
-        takepictureevento = function(sourcetype) {
-            try{
-            var cameraPopoverHandle = navigator.camera.getPicture(
-                        function(urlimg){
-                            try{
-                                var order = registry.byId("imageeventContainer").getChildren().length;
-                                order = order+1;
-                                addImageEvento(evento,urlimg,order, function(url,beanentry) {
-                                    try{
-                                        /* Aggiungo l'immagine in visualizzazone */
-                                        var container = registry.byId("imageeventContainer");
-                                        container.addChild(new IconItem({icon:url, bean:beanentry, moveTo:'swapvieweventimage', clickable:true, callback:loadswapeventimage}));                                
-                                    }catch(error){
-                                        errorlog("RECUPERO CAMERA - 102",error);
-                                    }
+                        //Controllo se esiste l'immagine
+                        ImgCache.isCached(srcimage, function(path, success) {                    
+                            if(success) {
+                                ImgCache.useCachedFile(imgBox);
+                            } else {
+                                ImgCache.cacheFile(srcimage, function(){
+                                    ImgCache.useCachedFile(imgBox);
                                 });
-                            }catch(error){
-                                errorlog("RECUPERO CAMERA - 103",error);
                             }
-                        },
-                        function(error){
-                            errorlog("RECUPERO CAMERA - 101",error);
-                        },
-                        { destinationType: Camera.DestinationType.FILE_URI,
-                          sourceType: sourcetype
-                        });
+                        });   
+                    }
+                    var labelBox = domConstruct.create("span", {innerHTML: html}, msgBox);
+                    gridnews.addChild(pane); 
+                    pane.startup();
+                }                    
             }catch(e){
-                errorlog("RECUPERO CAMERA - 100",e);
+                errorlog("SEARCH NEWS",e);
             }
-        };
+        }
         
-        /*
-        * Caricamento immagini in SwapView
-        *
-        */
-        loadswapeventimage = function(){
-            //Recupero le immagini dal contenitore iconcontainer in ordine e creo lo swap
-            try{
-                startLoading();                
-                //Rimuovo le immagini dello swap
-                var swapcontainer = registry.byId("swapvieweventimage");
-                swapcontainer.destroyDescendants();
-                var imagecontainer = registry.byId("imageeventContainer");
-                var childrenimage = imagecontainer.getChildren();
-                for(i=0;i<childrenimage.length;i++){   
-                    view = new SwapView();
-                    view.addChild(new Icon({icon:childrenimage[i].icon}));
-                    swapcontainer.addChild(view);
-                }                 
-                page = new PageIndicator();
-                swapcontainer.addChild(page,0);
-                page.startup();                            
-                stopLoading();
-            }catch(e){
-                errorlog("LOAD SWAP VIEW - 100",e);
-            }       
-        };
-          
-        /* Funzione di pull per sincronizzare le offerte */
-        onPullEventi = function(view, y, h){
-          dom.byId("msg1eventi").innerHTML = percent < 100 ? "Tira per aggiornare gli eventi" : "Rilascia per aggiornare gli eventi";
-          y = y > h ? h : y;
-          var percent = y / h * 100;
-          var deg = -1.8 * percent + 360;
-          dom.byId("iconeventi").style.webkitTransform = "rotate(" + deg + "deg)";
-        };
+        if(callback){
+            callback();
+        }
+    });      
+};
+
+
+/* Metodo di apertura del dettaglio della news*/
+opendetailnews = function(id) {
+    
+    news = registry.byId(id).get("bean");  
+    actualobject = news;    
+    if(news.objectType=='O'){
+        //Apro il dettaglio dell'offerta
+        registry.byId("tabNews").performTransition("offerdetail", 1, "slide"); 
+    }else if(news.objectType=='E'){
+        //Apro il dettaglio dell'evento
+        registry.byId("tabNews").performTransition("eventdetail", 1, "slide"); 
+    }else if(news.objectType=='M'){
+        //Apro il dettaglio del messaggio
+        registry.byId("tabNews").performTransition("messagedetail", 1, "slide"); 
+    }
+};
+
+
+
+createofferdetail = function(){
+    //Elimino la vecchia visualizzazione
+    detailoffer = registry.byId("offerdetail");
+    
+    //Elimino il vecchio panello
+    if( registry.byId("paneofferdetail")){
+        registry.byId("paneofferdetail").destroyRecursive(false);
+    }
+    
+    offer = actualobject;
         
-        /* Funzione di Pulled per sincronizzare */
-        onPulledEventi = function(view){
-          if(!progeventi){
-					progeventi = new ProgressIndicator({size:20, center:false});
-				}
-			if(progeventi.timer){ return; }
-			dom.byId("iconeventi").style.display = "none";
-			dom.byId("msg1eventi").innerHTML = "Attendere...";
-			dom.byId("progeventi").appendChild(progeventi.domNode);
-			progoffer.start();
-             
-            //Effettuo la chiamata di sync con il master                
-            synctable(['event','event_image','image'], function() {
-                dom.byId("msg1eventi").innerHTML = "Sincronizzazione Immagini...";
-                 syncimages(function(){
-                     registry.byId("tabEventi").slideTo({y:0}, 0.3, "ease-out");
-                     progoffer.stop();
-                     dom.byId("iconeventi").style.display = "inline";  
-                     
-                     //Ricarico i valori
-                     startLoading();
-                     searcheventi(storeventi,function(){                            
-                         registry.byId('listeventi').refresh();                            
-                         stopLoading();
-                     });             
-                 });               
-            });            
-         };
-
-
-
-
-/***************************************************************************************************
-*                                           PUNTI                                                 *
-****************************************************************************************************/
-
- savepunti = function(){
-            startLoading();
-            //nuovo messaggio
-            var uuid = getUUID();
-            punti.credit_id = uuid;
-            punti.utente_id = user.utente_id;
-            punti.date_created = new Date();
-            punti.merchant_id = user.merchant_id;
-            try {
-                addpunti(punti, function(){
-                    //Sicronizzo la tabella dei punti
-                    synctable(['credit'], function(){
-                        stopLoading();
-                        //Messaggio punti salvati con successo e lancio notifica al cliente
-                        createMessage("Punti Registrati con Successo!",function(){
-                            //Chiudo e torno alla home
-                            registry.byId("tabPunti").performTransition("homepage", -1, "slide");
-                        });
-                                                
-                    });                  
-                });
-            }catch(e){
-                errorlog("SALVA PUNTI - 102",e);   
-            }                    
-        };
-
-resetpunti = function(){
+    //Creo il pannello
+    pane = new Pane({id:"paneofferdetail"});
+    
+    //Controllo date dell'offerte
+    msgdate = "Offerta Valida ";
+    if(offer.dateFrom) {
+        msgdate += ' dal '+locale.format(new Date(offer.dateFrom),{selector: "date", formatLength: "short", datePattern:dateformat});
+    }
+    
+    if(offer.dateTo){
+        msgdate += ' fino al '+locale.format(new Date(offer.dateTo),{selector: "date", formatLength: "short", datePattern:dateformat});
+    }  
+    
+    if(offer.ragSoc){
+        msgdate += "</br>"+offer.ragSoc;
+    }
+    
+    if(offer.title){
+        msgdate += "</br>"+offer.title;
+    }
+    
+    if(offer.quantity) {
+        alert(offer.quantity);
+        msgdate += "</br> Quantità "+offer.quantity;
+    }
+    
+    if(offer.price){
+        msgdate += "</br> Prezzo "+number.format(offer.price)+" €";
+    }
+            
+    var msgBox = domConstruct.create("div", {class: "innerPaneDetail", innerHTML:msgdate}, pane.domNode);    
+    detailoffer.addChild(pane,0);  
         
-}
+    // Visualizzo la descrizione dell'offerta
+    if( registry.byId("paneofferdetailhtml")){
+        registry.byId("paneofferdetailhtml").destroyRecursive(false);
+    } 
+    //Creo il pannello
+    panehtml = new Pane({id:"paneofferdetailhtml"});
+    var msgBoxhtml = domConstruct.create("div", {class: "innerPaneDetail", innerHTML:offer.description}, panehtml.domNode);    
+    detailoffer.addChild(panehtml);
+    
+    //Recupero le immagini dell'offerta
+    getOfferImages(request,news.objectId,function(images){         
+        var imgs = new Array();
+        for(i=0;i<images.length;i++) {
+            var srcimage = images[i].fullPathName;
+            var obj = new Object();
+            obj.src = srcimage;  
+            imgs.push(obj);                     
+        }
+        storeofferimage.setData(imgs);
+        registry.byId("carouselofferimage").refresh();
+    });
+};
+
 
 /*****************************************************************************************************************/
         
