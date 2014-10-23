@@ -95,7 +95,52 @@ getOfferImages = function(request,offerid,callback){
         },
         function(error) {
             errorlog("Errore Recupero Immagini",error);            
-        });
+        });   
+};
+
+
+
+/* Salvo sulle preferenze */
+setMerchantPreferredByQrCode = function(request,qrcode,callback){
+
+    var urlservice = url+"FacadeClient/setMerchantPreferredByQrCode?deviceId="+deviceID+"&preferred=true&qrCode="+qrcode;
+    var promise = request.post(urlservice,{
+    handleAs: "json",
+    headers: {
+            "X-Requested-With": null,
+            "Content-Type":"application/json"                        
+            }           
+    }); 
     
-    
+    promise.response.then(
+        function(response) {
+            //Controllo messaggi di errore
+            var message = response.data.messageList;
+            error = false;
+            if(message && message.length>0){
+                if(message[0]=='IROK'){
+                    error = false;
+                }else{
+                    errorlog(message[0]);
+                }
+            }
+                    
+            if(!error){
+                callback();           
+            }
+            
+        },
+        function(error) {
+            errorlog("Errore Salvataggio Preferenza",error);            
+        });   
+
 }
+
+
+
+
+
+
+
+
+

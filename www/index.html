@@ -280,7 +280,9 @@
             
             .innerPaneImg{
                 max-height: 90%;
-                max-width: 90%;              
+                max-width: 90%;
+                height:90%;
+                width:90%;
             }
             
             /*
@@ -387,7 +389,7 @@
                              <div id="msg1offer"></div>
                         </div>
                         <div class="SearchBoxdiv" id="filterBoxNewsDiv">
-                           <input data-dojo-type="dojox.mobile.SearchBox" data-dojo-props="queryExpr:'*${0}*'" type="search" id="filterBoxNews" class="mblFilteredEdgeToEdgeListSearchBox">
+                           <input data-dojo-type="dojox.mobile.SearchBox"  data-dojo-props="incremental:true, onChange:searchnewsfilter"  type="search" id="filterBoxNews" class="mblFilteredEdgeToEdgeListSearchBox">
                            
                         </div>
                         <div id="gridnews" data-dojo-type="dojox.mobile.GridLayout" data-dojo-props='cols:2'>
@@ -425,7 +427,7 @@
                     <li dojotype="dojox.mobile.TabBarButton" moveTo="tabNews" class="icon ion-speakerphone size-24" style="height:100%;padding-top:10px"  selected="true"></li>
                     <li dojotype="dojox.mobile.TabBarButton" moveTo="tabNews" class="icon ion-email size-24" style="height:100%;padding-top:10px"></li>
                     <li dojotype="dojox.mobile.TabBarButton" moveTo="tabNews" class="icon ion-calendar size-24" style="height:100%;padding-top:10px"></li>
-                    <li dojotype="dojox.mobile.TabBarButton" onclick="scanqrcode()" class="icon ion-calendar size-24" style="height:100%;padding-top:10px"></li>
+                    <li dojotype="dojox.mobile.TabBarButton" onclick="scanqrcode()" class="icon ion-qr-scanner size-24" style="height:100%;padding-top:10px"></li>
 	           </ul>             
         		
         </div>
@@ -433,7 +435,12 @@
         <div id="imagedetail"  data-dojo-type="dojox.mobile.SimpleDialog"  data-dojo-props="closeButton:true"  style="background-color:white;width:92%;height:92%" > 	
             <img id="imgdetail" src="#" style="width:100%;height:auto;max-height:100%;z-index:-10;position:absolute;top:0;left:0"></img> 
         </div>
+        
 
+        <div id="loading"  data-dojo-type="dojox.mobile.SimpleDialog" style="background-color:transparent;width:100px;height:100px;border:none">
+              <div data-dojo-type="dojox.mobile.ProgressIndicator" data-dojo-props="center:true,size:100" style="top:-100px" startSpinning="true" colors="['#E60012','#F39800','#FFF100','#8FC31F','#009944','#009E96',
+              '#00A0E9','#0068B7','#1D2088','#920783','#E4007F','#E5004F']"></div>      
+        </div>
   
     </body>
 </html>

@@ -162,9 +162,9 @@ require([
 
                 imgdetailview.show();                                          
             });
-                    
+                        
             //TODO DA COMMENTARE PER NATIVA
-            //onDeviceReady(); 
+            onDeviceReady(); 
 	    });
 		
         function onDeviceReady() {
@@ -192,13 +192,21 @@ require([
                 navigator.splashscreen.hide();                      
             } catch(e) {
                 errorlog("ERRORE VIEW APP - 100",e);
-            }
-            
-            
-            
+            } 
+            document.addEventListener("backbutton", onBackKeyDown, false);     
         };
-
-
+    
+        onBackKeyDown = function(e){
+           createConfirmation("Sei sicuro di uscire da Shooopit?", 
+            function(){
+               navigator.app.exitApp(); 
+            }, 
+            function(){
+                //Non fa nulla
+                e.preventDefault();
+            }); 
+        }
+            
           
         /* Funzione di pull per sincronizzare le offerte */
         onPullNews = function(view, y, h){
@@ -246,6 +254,7 @@ require([
 
 searchnews = function(filter,append,favourite,callback){
     //Carico le News
+    startLoading();
     getNews(request,json,filter,favourite,1,function(news){
         
         var gridnews = registry.byId("gridnews");
@@ -303,8 +312,8 @@ searchnews = function(filter,append,favourite,callback){
             }catch(e){
                 errorlog("SEARCH NEWS",e);
             }
-        }
-        
+        } 
+        stopLoading();
         if(callback){
             callback();
         }
@@ -409,31 +418,41 @@ favouritesearch = function(favourite) {
     } else {
         domStyle.set('favouritebuttonko', 'display','inline');
         domStyle.set('favouritebuttonok', 'display','none');
-        searchnews(value,false,true);
+        searchnews(value,false,false);
     }
-}
+};
 
+
+searchnewsfilter = function(){
+    fav = domStyle.get('favouritebuttonko', 'display');    
+    favouritesearch((fav=='none'));  
+};
 
 
 /*****************************************************************************************************************/
 /*                                                QR-CODE
 /*****************************************************************************************************************/
 
-scanqrcode = function(){
-    
+scanqrcode = function() {    
     //Apro il barcode scanner
+    startLoading();
     cordova.plugins.barcodeScanner.scan(
-      function (result) {
-          alert("We got a barcode\n" +
-                "Result: " + result.text + "\n" +
-                "Format: " + result.format + "\n" +
-                "Cancelled: " + result.cancelled);
+      function (result) {          
+          var urlqrcode = result.text;
+          setMerchantPreferredByQrCode(request,urlqrcode,function(){
+            stopLoading();
+            createMessage("Negozio inserito nei preferiti!", function(){});
+          });
       }, 
       function (error) {
-          alert("Scanning failed: " + error);
+          errorlog("Errore scansione QR-CODE",error);
       }
    );   
-}
+};
+
+
+
+
 
 /*****************************************************************************************************************/
         
@@ -525,14 +544,17 @@ scanqrcode = function(){
 		 * Visibile Durante gli accessi al DB
 		 */
 		startLoading = function startLoading(){
-            var prog = ProgressIndicator.getInstance();
-			dom.byId("ViewApplication").appendChild(prog.domNode);
-		    prog.start();
+            //var prog = ProgressIndicator.getInstance();
+			
+            //dom.byId("ViewApplication").appendChild(prog.domNode);
+            //prog.start();
+            registry.byId('loading').show();
 		};
 		
 		stopLoading = function stopLoading(){
-			var prog = ProgressIndicator.getInstance();
-			prog.stop();
+			//var prog = ProgressIndicator.getInstance();
+			//prog.stop();
+            registry.byId('loading').hide();
 		};	
 		
 		/**
