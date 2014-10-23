@@ -3,7 +3,7 @@
         "www": {
             "id": "it.trizeta.shooopit",
             "version": "3.5.0",
-            "uri": "https://github.com/phonegap/phonegap-app-hello-world/archive/3.5.0.tar.gz"
+            "uri": "https://github.com/trizeta/ShooopIt.git"
         }
     },
     "phonegap": {
