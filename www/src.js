@@ -186,6 +186,16 @@ require([
             } catch(e){
                 errorlog("ERROR LOAD NEWS",e);
             } 
+            
+             try{   
+                //Nascondo lo splah screen
+                navigator.splashscreen.hide();                      
+            } catch(e) {
+                errorlog("ERRORE VIEW APP - 100",e);
+            }
+            
+            
+            
         };
 
 
