@@ -1,4 +1,4 @@
-ShooopApp
+ShooopIt
 =========
 
-ShooopApp
+ShooopIt
