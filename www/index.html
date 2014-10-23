@@ -369,9 +369,12 @@
                              <img src="img/logo36.png"></img>                                             
                         </div>
             
-                        <label id="headingnews" style="display:none;color:white">News</label>
+                        <label id="headingnews" style="display:none;color:white">News</label>             
                         
                         <div id="searchfilterbutton" data-dojo-type="dojox.mobile.ToolBarButton" class="icon ion-android-search size-24" style="float:right;width:20px" onClick="opensearch();"></div>
+                        <div id="favouritebuttonko" data-dojo-type="dojox.mobile.ToolBarButton" class="icon ion-ios7-star-outline size-32" style="float:right;width:20px" onClick="favouritesearch(true);"></div>
+                        <div id="favouritebuttonok" data-dojo-type="dojox.mobile.ToolBarButton" class="icon ion-ios7-star size-32" style="float:right;width:20px;color:yellow;display:none" onClick="favouritesearch(false);"></div>
+            
                     </div>
                     
                                  
@@ -384,6 +387,7 @@
                         </div>
                         <div class="SearchBoxdiv" id="filterBoxNewsDiv">
                            <input data-dojo-type="dojox.mobile.SearchBox" data-dojo-props="queryExpr:'*${0}*'" type="search" id="filterBoxNews" class="mblFilteredEdgeToEdgeListSearchBox">
+                           
                         </div>
                         <div id="gridnews" data-dojo-type="dojox.mobile.GridLayout" data-dojo-props='cols:2'>
                         </div> 
@@ -420,12 +424,13 @@
                     <li dojotype="dojox.mobile.TabBarButton" moveTo="tabNews" class="icon ion-speakerphone size-24" style="height:100%;padding-top:10px"  selected="true"></li>
                     <li dojotype="dojox.mobile.TabBarButton" moveTo="tabNews" class="icon ion-email size-24" style="height:100%;padding-top:10px"></li>
                     <li dojotype="dojox.mobile.TabBarButton" moveTo="tabNews" class="icon ion-calendar size-24" style="height:100%;padding-top:10px"></li>
+                    <li dojotype="dojox.mobile.TabBarButton" onclick="scanqrcode()" class="icon ion-calendar size-24" style="height:100%;padding-top:10px"></li>
 	           </ul>             
         		
         </div>
 
-        <div id="imagedetail"  data-dojo-type="dojox.mobile.ScrollableView" > 	
-            
+        <div id="imagedetail"  data-dojo-type="dojox.mobile.SimpleDialog"  data-dojo-props="closeButton:true"  style="background-color:white;width:92%;height:92%" > 	
+            <img id="imgdetail" src="#" style="width:100%;height:auto;max-height:100%;z-index:-10;position:absolute;top:0;left:0"></img> 
         </div>
 
   

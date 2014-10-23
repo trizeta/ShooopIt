@@ -1,5 +1,5 @@
 /* Recupero le news */
-getNews = function(request,json, filter, page, callback){
+getNews = function(request,json, filter,favourite, page, callback){
         
     jsonbean = new Object();
        
@@ -8,6 +8,11 @@ getNews = function(request,json, filter, page, callback){
     
     //Setto il numero di righe per pagina
     jsonbean.numRows = rowforpage;      
+    
+    //Setto i preferiti
+    if(favourite){
+        jsonbean.star = favourite;
+    }
     
     //Righe di partenza
     startrow = 0;

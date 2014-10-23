@@ -157,17 +157,10 @@ require([
             connect.subscribe("/dojox/mobile/carouselSelect", function(carousel, itemWidget, itemObject, index){
                 //Visualizzo a tutto schermo l'immagine
                 var imgdetailview = registry.byId("imagedetail");            
-                
-                alert(itemWidget);
-                
-                //Elimino le immagini
-                imgdetailview.destroyDescendants();
-                                
-                var msgBox = domConstruct.create("img", {style:"width:100%;height:100%;z-index:-10;position:absolute;top:0;left:0", src:itemObject.src, onclick:closedetailimage}, imgdetailview.domNode); 
-                 
-                registry.byId("ViewApplication").performTransition("imagedetail", 1, "fade"); 
-                
-                //Swap a sinistra torna indietro                
+                            
+                dom.byId("imgdetail").src = itemObject.src;
+
+                imgdetailview.show();                                          
             });
                     
             //TODO DA COMMENTARE PER NATIVA
@@ -186,9 +179,9 @@ require([
             try {                
                 //Inizializzo imgcache
                 ImgCache.init(function(){
-                    searchnews(null,false); 
+                    searchnews(null,false,false); 
                 }, function(){
-                    searchnews(null,false); 
+                    searchnews(null,false,false); 
                 });          
             } catch(e){
                 errorlog("ERROR LOAD NEWS",e);
@@ -218,7 +211,7 @@ require([
 			progoffer.start();
              
             //TODO Aggiungere filtro
-            searchnews(null,false,function(){
+            searchnews(null,false,false,function(){
                 registry.byId("tabNews").slideTo({y:0}, 0.3, "ease-out");
                 progoffer.stop();
                 dom.byId("iconoffer").style.display = "inline"; 
@@ -232,6 +225,7 @@ require([
                     domStyle.set(actualfilterid, 'display', 'block');
                 }else{
                     domStyle.set(actualfilterid, 'display', 'none');
+                    registry.byId('filterBoxNews').set('value',null);
                 }
             }        
          };
@@ -240,14 +234,9 @@ require([
 *                                   Recupero delle news
 ****************************************************************************************************************/
 
-closedetailimage = function() {
-    alert("CHIUDI");
-   registry.byId("ViewApplication").performTransition("imagedetail", 1, "fade");  
-};
-
-searchnews = function(filter,append,callback){
+searchnews = function(filter,append,favourite,callback){
     //Carico le News
-    getNews(request,json,filter,1,function(news){
+    getNews(request,json,filter,favourite,1,function(news){
         
         var gridnews = registry.byId("gridnews");
         
@@ -365,7 +354,6 @@ createofferdetail = function(){
     }
     
     if(offer.quantity) {
-        alert(offer.quantity);
         msgdate += "</br> Quantità "+offer.quantity;
     }
     
@@ -399,6 +387,43 @@ createofferdetail = function(){
     });
 };
 
+
+favouritesearch = function(favourite) {    
+    var value = registry.byId('filterBoxNews').get('value');
+    if(favourite) {
+    //Controllo lo stato dei preferiti
+        domStyle.set('favouritebuttonko', 'display','none');
+        domStyle.set('favouritebuttonok', 'display','inline');
+        searchnews(value,false,true);
+    
+    } else {
+        domStyle.set('favouritebuttonko', 'display','inline');
+        domStyle.set('favouritebuttonok', 'display','none');
+        searchnews(value,false,true);
+    }
+}
+
+
+
+/*****************************************************************************************************************/
+/*                                                QR-CODE
+/*****************************************************************************************************************/
+
+scanqrcode = function(){
+    
+    //Apro il barcode scanner
+    cordova.plugins.barcodeScanner.scan(
+      function (result) {
+          alert("We got a barcode\n" +
+                "Result: " + result.text + "\n" +
+                "Format: " + result.format + "\n" +
+                "Cancelled: " + result.cancelled);
+      }, 
+      function (error) {
+          alert("Scanning failed: " + error);
+      }
+   );   
+}
 
 /*****************************************************************************************************************/
         
