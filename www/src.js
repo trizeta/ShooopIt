@@ -308,7 +308,7 @@ require([
             });
                         
             //TODO DA COMMENTARE PER NATIVA
-            onDeviceReady(); 
+            //onDeviceReady(); 
 	    });
 		
         function onDeviceReady() {
