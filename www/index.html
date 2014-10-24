@@ -372,21 +372,45 @@
                              <img src="img/logo36.png"></img>                                             
                         </div>
             
-                        <label id="headingnews" style="display:none;color:white">News</label>             
+                        <label id="headingnews" style="display:none;color:white">News</label>
+                        <label id="headingoffer" style="display:none;color:white">Offerte</label>
+                        <label id="headingmessage" style="display:none;color:white">Messaggi</label>
+                        <label id="headingevent" style="display:none;color:white">Eventi</label>
+            
+                    
+                    <!-- NEWS -->
+                    <div id="searchnewsfilterbutton" data-dojo-type="dojox.mobile.ToolBarButton" class="icon ion-android-search size-24" style="float:right;width:20px;display:none" onClick="opensearchnews();"></div>
+                    <div id="favouritenewsbuttonko" data-dojo-type="dojox.mobile.ToolBarButton" class="icon ion-ios7-star-outline size-32" style="float:right;width:20px;display:none" onClick="favouritesearchnews(true);"></div>
+                    <div id="favouritenewsbuttonok" data-dojo-type="dojox.mobile.ToolBarButton" class="icon ion-ios7-star size-32" style="float:right;width:20px;color:yellow;display:none" onClick="favouritesearchnews(false);"></div>        
                         
-                        <div id="searchfilterbutton" data-dojo-type="dojox.mobile.ToolBarButton" class="icon ion-android-search size-24" style="float:right;width:20px" onClick="opensearch();"></div>
-                        <div id="favouritebuttonko" data-dojo-type="dojox.mobile.ToolBarButton" class="icon ion-ios7-star-outline size-32" style="float:right;width:20px" onClick="favouritesearch(true);"></div>
-                        <div id="favouritebuttonok" data-dojo-type="dojox.mobile.ToolBarButton" class="icon ion-ios7-star size-32" style="float:right;width:20px;color:yellow;display:none" onClick="favouritesearch(false);"></div>
+                    <!-- OFFER -->
+                    <div id="searchofferfilterbutton" data-dojo-type="dojox.mobile.ToolBarButton" class="icon ion-android-search size-24" style="float:right;width:20px;display:none" onClick="opensearchoffer();"></div>            
+                    <div id="favouriteofferbuttonko" data-dojo-type="dojox.mobile.ToolBarButton" class="icon ion-ios7-star-outline size-32" style="float:right;width:20px;display:none" onClick="favouritesearchoffer(true);"></div>
+                    <div id="favouriteofferbuttonok" data-dojo-type="dojox.mobile.ToolBarButton" class="icon ion-ios7-star size-32" style="float:right;width:20px;color:yellow;display:none" onClick="favouritesearchoffer(false);"></div>        
+            
+                    <!-- EVENT -->
+                    <div id="searcheventfilterbutton" data-dojo-type="dojox.mobile.ToolBarButton" class="icon ion-android-search size-24" style="float:right;width:20px;display:none" onClick="opensearchevent();"></div>
+                    <div id="favouriteeventbuttonko" data-dojo-type="dojox.mobile.ToolBarButton" class="icon ion-ios7-star-outline size-32" style="float:right;width:20px;display:none" onClick="favouritesearchevent(true);"></div>
+                    <div id="favouriteeventbuttonok" data-dojo-type="dojox.mobile.ToolBarButton" class="icon ion-ios7-star size-32" style="float:right;width:20px;color:yellow;display:none" onClick="favouritesearchevent(false);"></div>        
+            
+            
+                    <!-- MESSAGE -->
+                    <div id="searchmessagefilterbutton" data-dojo-type="dojox.mobile.ToolBarButton" class="icon ion-android-search size-24" style="float:right;width:20px;display:none" onClick="opensearchmessage();"></div>
+                    <div id="favouritemessagebuttonko" data-dojo-type="dojox.mobile.ToolBarButton" class="icon ion-ios7-star-outline size-32" style="float:right;width:20px;display:none" onClick="favouritesearchmessage(true);"></div>
+                    <div id="favouritemessagebuttonok" data-dojo-type="dojox.mobile.ToolBarButton" class="icon ion-ios7-star size-32" style="float:right;width:20px;color:yellow;display:none" onClick="favouritesearchmessage(false);"></div>
+            
+                        
+            
             
                     </div>
                     
                                  
         	        <!-- Vista News -->	
-                    <div id="tabNews" data-dojo-type="dojox.mobile.PullView" data-dojo-props='onPull:onPullNews, onPulled:onPulledNews' >                         
-                        <div id="pulloffer" style="text-align:center">
-                             <div id="progoffer"></div>
-                             <img id="iconoffer" src="img/refresh-arrow.png">
-                             <div id="msg1offer"></div>
+                    <div id="tabNews" data-dojo-type="dojox.mobile.PullView" data-dojo-props='onPull:onPullNews, onPulled:onPulledNews' onAfterScroll="pagingNews" >                         
+                        <div id="pullnews" style="text-align:center">
+                             <div id="prognews"></div>
+                             <img id="iconnews" src="img/refresh-arrow.png">
+                             <div id="msg1news"></div>
                         </div>
                         <div class="SearchBoxdiv" id="filterBoxNewsDiv">
                            <input data-dojo-type="dojox.mobile.SearchBox"  data-dojo-props="incremental:true, onChange:searchnewsfilter"  type="search" id="filterBoxNews" class="mblFilteredEdgeToEdgeListSearchBox">
@@ -395,38 +419,75 @@
                         <div id="gridnews" data-dojo-type="dojox.mobile.GridLayout" data-dojo-props='cols:2'>
                         </div> 
                     </div>
-                 
+    
+                    <!-- Vista Offerte -->	
+                    <div id="tabOffer" data-dojo-type="dojox.mobile.PullView" data-dojo-props='onPull:onPullOffer, onPulled:onPulledOffer' onAfterScroll="pagingOffer" >                         
+                        <div id="pulloffer" style="text-align:center">
+                             <div id="progoffer"></div>
+                             <img id="iconoffer" src="img/refresh-arrow.png">
+                             <div id="msg1offer"></div>
+                        </div>
+                        <div class="SearchBoxdiv" id="filterBoxOfferDiv">
+                           <input data-dojo-type="dojox.mobile.SearchBox"  data-dojo-props="incremental:true, onChange:searchofferfilter"  type="search" id="filterBoxOffer" class="mblFilteredEdgeToEdgeListSearchBox">
+                           
+                        </div>
+                        <div id="gridoffer" data-dojo-type="dojox.mobile.GridLayout" data-dojo-props='cols:2'>
+                        </div> 
+                    </div>
+                    
+                    <!-- Vista Eventi -->	
+                    <div id="tabEvent" data-dojo-type="dojox.mobile.PullView" data-dojo-props='onPull:onPullEvent, onPulled:onPulledEvent' onAfterScroll="pagingEvent" >                         
+                        <div id="pullevent" style="text-align:center">
+                             <div id="progevent"></div>
+                             <img id="iconevent" src="img/refresh-arrow.png">
+                             <div id="msg1event"></div>
+                        </div>
+                        <div class="SearchBoxdiv" id="filterBoxEventDiv">
+                           <input data-dojo-type="dojox.mobile.SearchBox"  data-dojo-props="incremental:true, onChange:searcheventfilter"  type="search" id="filterBoxEvent" class="mblFilteredEdgeToEdgeListSearchBox">
+                           
+                        </div>
+                        <div id="gridevent" data-dojo-type="dojox.mobile.GridLayout" data-dojo-props='cols:2'>
+                        </div> 
+                    </div>
+                    
+                    <!-- Vista Messaggi -->	
+                    <div id="tabMessage" data-dojo-type="dojox.mobile.PullView" data-dojo-props='onPull:onPullMessage, onPulled:onPulledMessage' onAfterScroll="pagingMessage" >                         
+                        <div id="pullmessage" style="text-align:center">
+                             <div id="progmessage"></div>
+                             <img id="iconmessage" src="img/refresh-arrow.png">
+                             <div id="msg1message"></div>
+                        </div>
+                        <div class="SearchBoxdiv" id="filterBoxMessageDiv">
+                           <input data-dojo-type="dojox.mobile.SearchBox"  data-dojo-props="incremental:true, onChange:searchmessagefilter"  type="search" id="filterBoxMessage" class="mblFilteredEdgeToEdgeListSearchBox">
+                           
+                        </div>
+                        <div id="gridmessage" data-dojo-type="dojox.mobile.GridLayout" data-dojo-props='cols:2'>
+                        </div> 
+                    </div>
+                                    
                     <!-- Dettaglio Offerta -->
 					<div id="offerdetail"  data-dojo-type="dojox.mobile.ScrollableView"> 	
-                                                            
- 	                      <div id="carouselofferimage" data-dojo-type="dojox.mobile.StoreCarousel" data-dojo-props="store:storeofferimage, height:'150px', itemWidth:150, navButton:false" >
-                           
+                        <div id="carouselofferimage" data-dojo-type="dojox.mobile.StoreCarousel" data-dojo-props="store:storeofferimage, height:'150px', itemWidth:150, navButton:false" >  
                         </div>
 				    </div> 
     
                     <!-- Dettaglio Evento -->
 					<div id="eventdetail"  data-dojo-type="dojox.mobile.ScrollableView" > 					 										 	
-					   DETTAGLIO EVENTO					 	
+					   <div id="carouseleventimage" data-dojo-type="dojox.mobile.StoreCarousel" data-dojo-props="store:storeofferimage, height:'150px', itemWidth:150, navButton:false" >  
+                       </div>
 				    </div> 	
     
                     <!-- Dettaglio Messaggio -->
-					<div id="messagedetail"  data-dojo-type="dojox.mobile.ScrollableView" > 					 										 	
-					   DETTAGLIO MESSAGGIO					 	
-				    </div> 
-				    
-                    <!-- Immagini -->
-                    <div id="tabImageNews"  data-dojo-type="dojox.mobile.ScrollableView" >
-                        <ul data-dojo-type="dojox.mobile.IconContainer" id="imageofferContainer" data-dojo-props='editable:true, transition:"slide"'></ul>                        
-                    </div>
-
-                <!-- Image Swap News -->
-                <div id="swapviewnewsimage" data-dojo-type="dojox.mobile.ScrollableView" ></div>
+					<div id="messagedetail"  data-dojo-type="dojox.mobile.ScrollableView" >
+				    </div>	    
+                
                             
                 <!-- Tab -->
                 <ul id="demoTabBar" dojoType="dojox.mobile.TabBar" single="true" fixed="bottom"   data-dojo-props="fill:'always'"> 
                     <li dojotype="dojox.mobile.TabBarButton" moveTo="tabNews" class="icon ion-speakerphone size-24" style="height:100%;padding-top:10px"  selected="true"></li>
-                    <li dojotype="dojox.mobile.TabBarButton" moveTo="tabNews" class="icon ion-email size-24" style="height:100%;padding-top:10px"></li>
-                    <li dojotype="dojox.mobile.TabBarButton" moveTo="tabNews" class="icon ion-calendar size-24" style="height:100%;padding-top:10px"></li>
+                    <li dojotype="dojox.mobile.TabBarButton" moveTo="tabOffer" class="icon ion-calendar size-24" style="height:100%;padding-top:10px"></li>
+                    <li dojotype="dojox.mobile.TabBarButton" moveTo="tabMessage" class="icon ion-email size-24" style="height:100%;padding-top:10px"></li>
+                    <li dojotype="dojox.mobile.TabBarButton" moveTo="tabEvent" class="icon ion-calendar size-24" style="height:100%;padding-top:10px"></li>
                     <li dojotype="dojox.mobile.TabBarButton" onclick="scanqrcode()" class="icon ion-qr-scanner size-24" style="height:100%;padding-top:10px"></li>
 	           </ul>             
         		

@@ -14,13 +14,33 @@ dlg = null;
 actualfilterid = null;
 
 //Massimo numero di righe per pagina
-rowforpage = 25;
+rowforpage = 10;
 
 //ID del Device
 deviceID = null;
 
-//Oggetto selezonato per il dettaglio
+//News
+actualpagenews = 1;
 actualobject = null;
+favouritenews = false;
+
+//Offerta
+actualoffer = null;
+actualpageoffer = 1;
+favouriteoffer = false;
+
+//Messaggio
+actualmessage = null;
+actualpagemessage = 1;
+favouritemessage = false;
+
+//Evento
+actualevent = null;
+actualpageevent = 1;
+favouriteevent = false;
+
+//Flag di caricamento pagina
+loadnextpage = false;
 
 
 /* Configurazione Iniziale */
@@ -108,7 +128,7 @@ require([
 ], function(ready, win, domConstruct, Memory, Observable, registry, on, dom,ProgressIndicator,stamp,locale,domStyle,ListItem,array,connect,domClass,ToolBarButton,IconItem,SimpleDialog,Button,SwapView,CarouselItem,Icon,PageIndicator,request,json,Pane,number,Carousel) {
 	
 		var dateformat = "dd/MM/yyyy";
-        var progoffer, progmessage, progshowcase,progeventi; 
+        var prognews, progoffer, progmessage, progeventi; 
         var delItem, handler;
          
         /* Caricamento dinamico dei bottoni */
@@ -134,26 +154,150 @@ require([
             
             //Logout Button
             var logout =  {class:"icon ion-log-out size-32", onTouchStart:logoutuser,  style:"float:left"};
-            
+        
             //Nascondo i search
             domStyle.set('filterBoxNewsDiv', 'display', 'none');
+            domStyle.set('filterBoxOfferDiv', 'display', 'none');
+            domStyle.set('filterBoxMessageDiv', 'display', 'none');
+            domStyle.set('filterBoxEventDiv', 'display', 'none');
                         
-            actualfilterid = "filterBoxNewsDiv";
-            domStyle.set('headingnews', 'display', 'inline');    
+            
+            domStyle.set('headingnews', 'display', 'inline');
+            domStyle.set('searchnewsfilterbutton', 'display', 'inline'); 
+            domStyle.set('favouritenewsbuttonko', 'display', 'inline'); 
+            
+            
             
             /****************************************************************************
             *   Aggiungo il controllo dei bottoni prima della transazione di apertura   *
             *****************************************************************************/                
             dojo.connect(registry.byId("ViewApplication"), "onBeforeTransitionIn", null, function(){
                 showheadingbuttons([]);
-                domStyle.set('headinghome', 'display', 'inline');     
+                domStyle.set('headinghome', 'display', 'inline');               
             });
-                           
+                        
+            /* OFFERTA */
+            dojo.connect(registry.byId("tabOffer"), "onBeforeTransitionIn", null, function(){
+                domStyle.set('headingoffer', 'display', 'inline');   
+                
+                //Nascondo i bottoni
+                domStyle.set('searchofferfilterbutton', 'display', 'inline'); 
+                if(!favouriteoffer){
+                    domStyle.set('favouriteofferbuttonko', 'display', 'inline'); 
+                }else{
+                    domStyle.set('favouriteofferbuttonok', 'display', 'inline'); 
+                }
+            });
+            
+            dojo.connect(registry.byId("tabOffer"), "onBeforeTransitionOut", null, function(){
+                domStyle.set('headingoffer', 'display', 'none'); 
+                
+                //Nascondo i bottoni
+                domStyle.set('searchofferfilterbutton', 'display', 'none'); 
+                domStyle.set('favouriteofferbuttonko', 'display', 'none'); 
+                domStyle.set('favouriteofferbuttonok', 'display', 'none'); 
+                
+            });
+            
             dojo.connect(registry.byId("offerdetail"), "onBeforeTransitionIn", null, function(){
                 //Creo il dettaglio dell'offerta
-                createofferdetail(actualobject);            
+                createofferdetail(actualobject); 
+                domStyle.set('headingoffer', 'display', 'inline');                         
+                
             });
-             
+            
+            dojo.connect(registry.byId("offerdetail"), "onBeforeTransitionOut", null, function(){
+                //Creo il dettaglio dell'offerta
+                domStyle.set('headingoffer', 'display', 'none');     
+            });  
+            
+            /* NEWS */
+            dojo.connect(registry.byId("tabNews"), "onBeforeTransitionIn", null, function(){
+                domStyle.set('headingnews', 'display', 'inline');   
+                
+                 //Nascondo i bottoni
+                domStyle.set('searchnewsfilterbutton', 'display', 'inline'); 
+                if(!favouritenews){
+                    domStyle.set('favouritenewsbuttonko', 'display', 'inline'); 
+                } else {
+                    domStyle.set('favouritenewsbuttonok', 'display', 'inline');                
+                }                
+            });
+            
+            dojo.connect(registry.byId("tabNews"), "onBeforeTransitionOut", null, function(){
+                domStyle.set('headingnews', 'display', 'none'); 
+                                
+                //Nascondo i bottoni
+                domStyle.set('searchnewsfilterbutton', 'display', 'none'); 
+                domStyle.set('favouritenewsbuttonko', 'display', 'none'); 
+                domStyle.set('favouritenewsbuttonok', 'display', 'none'); 
+            });
+            
+            
+            /* MESSAGGIO */
+            dojo.connect(registry.byId("tabMessage"), "onBeforeTransitionIn", null, function(){
+                domStyle.set('headingmessage', 'display', 'inline'); 
+                
+                domStyle.set('searchmessagefilterbutton', 'display', 'inline'); 
+                if(!favouritemessage){
+                    domStyle.set('favouritemessagebuttonko', 'display', 'inline'); 
+                } else {
+                    domStyle.set('favouritemessagebuttonok', 'display', 'inline');  
+                }
+            });
+            
+            dojo.connect(registry.byId("tabMessage"), "onBeforeTransitionOut", null, function(){
+                domStyle.set('headingmessage', 'display', 'none');  
+                
+                //Nascondo i bottoni
+                domStyle.set('searchmessagefilterbutton', 'display', 'none'); 
+                domStyle.set('favouritemessagebuttonko', 'display', 'none'); 
+                domStyle.set('favouritemessagebuttonok', 'display', 'none');               
+                
+            });
+                        
+            dojo.connect(registry.byId("messagedetail"), "onBeforeTransitionIn", null, function(){
+                //Creo il dettaglio dell'offerta
+                createmessagedetail(actualobject); 
+                domStyle.set('headingmessage', 'display', 'inline'); 
+            });
+            
+            dojo.connect(registry.byId("messagedetail"), "onBeforeTransitionOut", null, function(){
+                domStyle.set('headingmessage', 'display', 'none'); 
+            });           
+                         
+            /* EVENTI */
+            dojo.connect(registry.byId("tabEvent"), "onBeforeTransitionIn", null, function(){
+                domStyle.set('headingevent', 'display', 'inline');   
+                
+                domStyle.set('searcheventfilterbutton', 'display', 'inline');
+                
+                if(!favouriteevent){
+                    domStyle.set('favouriteeventbuttonko', 'display', 'inline'); 
+                } else {
+                    domStyle.set('favouriteeventbuttonok', 'display', 'inline');                 
+                }
+            });
+            
+            dojo.connect(registry.byId("tabEvent"), "onBeforeTransitionOut", null, function(){
+                domStyle.set('headingevent', 'display', 'none'); 
+                
+                domStyle.set('searcheventfilterbutton', 'display', 'none'); 
+                domStyle.set('favouriteeventbuttonko', 'display', 'none'); 
+                domStyle.set('favouriteeventbuttonok', 'display', 'none');  
+                
+            });            
+            
+            dojo.connect(registry.byId("eventdetail"), "onBeforeTransitionIn", null, function(){
+                //Creo il dettaglio dell'offerta
+                createeventdetail(actualobject); 
+                domStyle.set('headingevent', 'display', 'inline'); 
+            });
+            
+            dojo.connect(registry.byId("eventdetail"), "onBeforeTransitionIn", null, function(){
+                domStyle.set('headingevent', 'display', 'none'); 
+            });             
+                        
             connect.subscribe("/dojox/mobile/carouselSelect", function(carousel, itemWidget, itemObject, index){
                 //Visualizzo a tutto schermo l'immagine
                 var imgdetailview = registry.byId("imagedetail");            
@@ -164,7 +308,7 @@ require([
             });
                         
             //TODO DA COMMENTARE PER NATIVA
-            //onDeviceReady(); 
+            onDeviceReady(); 
 	    });
 		
         function onDeviceReady() {
@@ -179,9 +323,9 @@ require([
             try {                
                 //Inizializzo imgcache
                 ImgCache.init(function(){
-                    searchnews(null,false,false); 
+                    searchnews(null,false,false,1); 
                 }, function(){
-                    searchnews(null,false,false); 
+                    searchnews(null,false,false,1); 
                 });          
             } catch(e){
                 errorlog("ERROR LOAD NEWS",e);
@@ -202,15 +346,41 @@ require([
                navigator.app.exitApp(); 
             }, 
             function(){
-                //Non fa nulla
-                e.preventDefault();
+                //Non fa nulla               
             }); 
-        }
-            
-          
-        /* Funzione di pull per sincronizzare le offerte */
+        };
+              
+        /* Funzione di pull per sincronizzare le news */
         onPullNews = function(view, y, h){
-          dom.byId("msg1offer").innerHTML = percent < 100 ? "Tira per aggiornare le news" : "Rilascia per aggiornare le news";
+          dom.byId("msg1news").innerHTML = percent < 100 ? "Tira per aggiornare le news" : "Rilascia per aggiornare le news";
+          y = y > h ? h : y;
+          var percent = y / h * 100;
+          var deg = -1.8 * percent + 360;
+          dom.byId("iconnews").style.webkitTransform = "rotate(" + deg + "deg)";
+        };
+        
+        /* Funzione di Pulled per sincronizzare */
+        onPulledNews = function(view){
+          if(!prognews){
+					prognews = new ProgressIndicator({size:20, center:false});
+            }
+			if(prognews.timer){ return; }
+			dom.byId("iconnews").style.display = "none";
+			dom.byId("msg1news").innerHTML = "Attendere...";
+			dom.byId("prognews").appendChild(prognews.domNode);
+			prognews.start();
+             
+            //TODO Aggiungere filtro
+            searchnews(null,false,false,1,function(){
+                registry.byId("tabNews").slideTo({y:0}, 0.3, "ease-out");
+                prognews.stop();
+                dom.byId("iconnews").style.display = "inline"; 
+            });                      
+         };
+
+        /* Funzione di pull per sincronizzare delle offerte */
+         onPullOffer = function(view, y, h){
+          dom.byId("msg1offer").innerHTML = percent < 100 ? "Tira per aggiornare le offerte" : "Rilascia per aggiornare le offerte";
           y = y > h ? h : y;
           var percent = y / h * 100;
           var deg = -1.8 * percent + 360;
@@ -218,7 +388,7 @@ require([
         };
         
         /* Funzione di Pulled per sincronizzare */
-        onPulledNews = function(view){
+        onPulledOffer = function(view){
           if(!progoffer){
 					progoffer = new ProgressIndicator({size:20, center:false});
             }
@@ -229,33 +399,81 @@ require([
 			progoffer.start();
              
             //TODO Aggiungere filtro
-            searchnews(null,false,false,function(){
-                registry.byId("tabNews").slideTo({y:0}, 0.3, "ease-out");
+            searchoffer(null,false,false,1,function(){
+                registry.byId("tabOffer").slideTo({y:0}, 0.3, "ease-out");
                 progoffer.stop();
                 dom.byId("iconoffer").style.display = "inline"; 
             });                      
          };
 
-         opensearch = function(){
-            if(actualfilterid){
-                var type = domStyle.get(actualfilterid, 'display');
-                if(type=='none'){
-                    domStyle.set(actualfilterid, 'display', 'block');
-                }else{
-                    domStyle.set(actualfilterid, 'display', 'none');
-                    registry.byId('filterBoxNews').set('value',null);
-                }
-            }        
+        /* Funzione di pull per sincronizzare degli eventi */
+         onPullEvent = function(view, y, h){
+          dom.byId("msg1event").innerHTML = percent < 100 ? "Tira per aggiornare gli eventi" : "Rilascia per aggiornare gli eventi";
+          y = y > h ? h : y;
+          var percent = y / h * 100;
+          var deg = -1.8 * percent + 360;
+          dom.byId("iconevent").style.webkitTransform = "rotate(" + deg + "deg)";
+        };
+        
+        /* Funzione di Pulled per sincronizzare */
+        onPulledEvent = function(view){
+          if(!progevent){
+					progevent = new ProgressIndicator({size:20, center:false});
+            }
+			if(progevent.timer){ return; }
+			dom.byId("iconevent").style.display = "none";
+			dom.byId("msg1event").innerHTML = "Attendere...";
+			dom.byId("progevent").appendChild(progevent.domNode);
+			progevent.start();
+             
+            //TODO Aggiungere filtro
+            searchevent(null,false,false,1,function(){
+                registry.byId("tabEvent").slideTo({y:0}, 0.3, "ease-out");
+                progevent.stop();
+                dom.byId("iconevent").style.display = "inline"; 
+            });                      
          };
 
+
+        /* Funzione di pull per sincronizzare degli eventi */
+         onPullMessage = function(view, y, h){
+          dom.byId("msg1message").innerHTML = percent < 100 ? "Tira per aggiornare i messaggi" : "Rilascia per aggiornare i messaggi";
+          y = y > h ? h : y;
+          var percent = y / h * 100;
+          var deg = -1.8 * percent + 360;
+          dom.byId("iconmessage").style.webkitTransform = "rotate(" + deg + "deg)";
+        };
+        
+        /* Funzione di Pulled per sincronizzare */
+        onPulledMessage = function(view){
+          if(!progmessage){
+					progmessage = new ProgressIndicator({size:20, center:false});
+            }
+			if(progmessage.timer){ return; }
+			dom.byId("iconmessage").style.display = "none";
+			dom.byId("msg1message").innerHTML = "Attendere...";
+			dom.byId("progmessage").appendChild(progmessage.domNode);
+			progmessage.start();
+             
+            //TODO Aggiungere filtro
+            searchmessage(null,false,false,1,function(){
+                registry.byId("tabMessage").slideTo({y:0}, 0.3, "ease-out");
+                progmessage.stop();
+                dom.byId("iconmessage").style.display = "inline"; 
+            });                      
+         };
+
+        
+
 /****************************************************************************************************************
-*                                   Recupero delle news
+*                                   NEWS
 ****************************************************************************************************************/
 
-searchnews = function(filter,append,favourite,callback){
-    //Carico le News
-    startLoading();
-    getNews(request,json,filter,favourite,1,function(news){
+searchnews = function(filter,append,favourite,page,callback){
+    //Carico le News    
+    startLoading();    
+    actualpagenews = page;   
+    getNews(request,json,filter,favourite,page,function(news){
         
         var gridnews = registry.byId("gridnews");
         
@@ -320,7 +538,6 @@ searchnews = function(filter,append,favourite,callback){
     });      
 };
 
-
 /* Metodo di apertura del dettaglio della news*/
 opendetailnews = function(id) {
     
@@ -338,7 +555,161 @@ opendetailnews = function(id) {
     }
 };
 
+favouritesearchnews = function(favourite) {    
+    var value = registry.byId('filterBoxNews').get('value');
+    favouritenews = favourite;
+    if(favourite) {
+    //Controllo lo stato dei preferiti
+        domStyle.set('favouritenewsbuttonko', 'display','none');
+        domStyle.set('favouritenewsbuttonok', 'display','inline');
+        searchnews(value,false,true,1);
+    
+    } else {
+        domStyle.set('favouritenewsbuttonko', 'display','inline');
+        domStyle.set('favouritenewsbuttonok', 'display','none');
+        searchnews(value,false,false,1);
+    }
+};
 
+searchnewsfilter = function(){
+    fav = domStyle.get('favouritenewsbuttonko', 'display');    
+    favouritesearchnews((fav=='none'));  
+};
+
+pagingNews = function(e){
+   if(e.afterBottom && !loadnextpage) {
+       loadnextpage = true;
+       
+       //Effettuo la chiamata alla pagina successica
+       startLoading();
+       
+       //Calcolo il numero di pagina da visualizzare
+       fav = domStyle.get('favouritenewsbuttonko', 'display');    
+       favouritesearchnews((fav=='none'));  
+              
+       var value = registry.byId('filterBoxNews').get('value');    
+       searchnews(value,true,fav=='none',(actualpagenews+1), function(){
+           loadnextpage = false;
+           stopLoading();
+       });
+       
+   }
+};
+
+
+ opensearchnews = function(){        
+        var type = domStyle.get('filterBoxNewsDiv', 'display');
+        if(type=='none'){
+            domStyle.set('filterBoxNewsDiv', 'display', 'block');
+        }else{
+            domStyle.set('filterBoxNewsDiv', 'display', 'none');
+            registry.byId('filterBoxNews').set('value',null);
+        }
+};
+
+
+/*****************************************************************************************************************/
+/*                                                OFFERTE 
+/*****************************************************************************************************************/
+
+searchoffer = function(filter,append,favourite,page,callback){
+    //Carico le News    
+    startLoading();    
+    actualpageoffer = page;   
+    getOffer(request,json,filter,favourite,page,function(offers){
+        
+        var gridoffer = registry.byId("gridoffer");
+        
+        //Elimino le vecchie news
+        if(!append){
+            gridoffer.destroyDescendants();        
+        }
+        
+        //Ciclo le news 
+        for(i=0;i<offers.length;i++){                        
+            //Aggiungo i Pane e carico le immagini
+            try{  
+                var html = offers[i].title;
+                                
+                if(html){
+                    pane = new Pane();                                       
+                    pane.set("bean",offers[i]);
+                    pane.on("click",function(){opendetailoffer(this.id)});
+                                        
+                    var msgBox = domConstruct.create("div", {class: "innerPane"}, pane.domNode);
+                    var srcimage = urlimage+news[i].fullPathName;
+                    var imgBox = domConstruct.create("img", {src:srcimage, class:"innerPaneImg"}, msgBox);
+                    //Controllo se esiste l'immagine
+                    ImgCache.isCached(srcimage, function(path, success) {                    
+                        if(success) {
+                            ImgCache.useCachedFile(imgBox);
+                        } else {
+                            ImgCache.cacheFile(srcimage, function(){
+                                ImgCache.useCachedFile(imgBox);
+                            });
+                        }
+                    });   
+                    
+                    var labelBox = domConstruct.create("span", {innerHTML: html}, msgBox);
+                    gridoffer.addChild(pane); 
+                    pane.startup();
+                }                    
+            }catch(e){
+                errorlog("SEARCH OFFERS",e);
+            }
+        } 
+        stopLoading();
+        if(callback){
+            callback();
+        }
+    });      
+};
+
+opendetailoffer = function(id) {
+   actualoffer = registry.byId(id).get("bean");  
+   //Apro il dettaglio dell'offerta
+   registry.byId("tabOffer").performTransition("offerdetail", 1, "slide");    
+};
+
+
+favouritesearchoffer = function(favourite) {    
+    var value = registry.byId('filterBoxOffer').get('value');
+    favouriteoffer = favourite;
+    if(favourite) {
+    //Controllo lo stato dei preferiti
+        domStyle.set('favouriteofferbuttonko', 'display','none');
+        domStyle.set('favouriteofferbuttonok', 'display','inline');
+        searchoffer(value,false,true,1);    
+    } else {
+        domStyle.set('favouriteofferbuttonko', 'display','inline');
+        domStyle.set('favouriteofferbuttonok', 'display','none');
+        searchoffer(value,false,false,1);
+    }
+};
+
+searchofferfilter = function() {
+    fav = domStyle.get('favouriteofferbuttonko', 'display');    
+    favouritesearchoffer((fav=='none'));  
+};
+
+pagingOffer = function(e){
+   if(e.afterBottom && !loadnextpage) {
+       loadnextpage = true;
+       
+       //Effettuo la chiamata alla pagina successica
+       startLoading();
+       
+       //Calcolo il numero di pagina da visualizzare
+       fav = domStyle.get('favouriteofferbuttonko', 'display');    
+       favouriteoffer((fav=='none'));  
+              
+       var value = registry.byId('filterBoxOffer').get('value');    
+       searchoffer(value,true,fav=='none',(actualpagenews+1), function(){
+           loadnextpage = false;
+           stopLoading();
+       });      
+   }
+};
 
 createofferdetail = function(){
     //Elimino la vecchia visualizzazione
@@ -407,26 +778,307 @@ createofferdetail = function(){
 };
 
 
-favouritesearch = function(favourite) {    
-    var value = registry.byId('filterBoxNews').get('value');
+ opensearchoffer = function(){        
+        var type = domStyle.get('filterBoxOfferDiv', 'display');
+        if(type=='none'){
+            domStyle.set('filterBoxOfferDiv', 'display', 'block');
+        }else{
+            domStyle.set('filterBoxOfferDiv', 'display', 'none');
+            registry.byId('filterBoxOffer').set('value',null);
+        }
+};
+
+
+/*****************************************************************************************************************/
+/*                                                EVENTI 
+/*****************************************************************************************************************/
+
+searchevent = function(filter,append,favourite,page,callback){
+    //Carico le News    
+    startLoading();    
+    actualpageevent = page;   
+    getEvent(request,json,filter,favourite,page,function(events){
+        
+        var gridevent = registry.byId("gridevent");
+        
+        //Elimino le vecchie news
+        if(!append){
+            gridevent.destroyDescendants();        
+        }
+        
+        //Ciclo le news 
+        for(i=0;i<events.length;i++){                        
+            //Aggiungo i Pane e carico le immagini
+            try{  
+                var html = events[i].title;
+                                
+                if(html){
+                    pane = new Pane();                                       
+                    pane.set("bean",events[i]);
+                    pane.on("click",function(){opendetailevent(this.id)});
+                                        
+                    var msgBox = domConstruct.create("div", {class: "innerPane"}, pane.domNode);
+                    var srcimage = urlimage+news[i].fullPathName;
+                    var imgBox = domConstruct.create("img", {src:srcimage, class:"innerPaneImg"}, msgBox);
+                    //Controllo se esiste l'immagine
+                    ImgCache.isCached(srcimage, function(path, success) {                    
+                        if(success) {
+                            ImgCache.useCachedFile(imgBox);
+                        } else {
+                            ImgCache.cacheFile(srcimage, function(){
+                                ImgCache.useCachedFile(imgBox);
+                            });
+                        }
+                    });   
+                    
+                    var labelBox = domConstruct.create("span", {innerHTML: html}, msgBox);
+                    gridevent.addChild(pane); 
+                    pane.startup();
+                }                    
+            }catch(e){
+                errorlog("SEARCH EVENTS",e);
+            }
+        } 
+        stopLoading();
+        if(callback){
+            callback();
+        }
+    });      
+};
+
+opendetailevent = function(id) {
+   actualevent = registry.byId(id).get("bean");  
+   //Apro il dettaglio del evento
+   registry.byId("tabEvent").performTransition("eventdetail", 1, "slide");    
+};
+
+
+favouritesearchevent = function(favourite) {  
+    var value = registry.byId('filterBoxEvent').get('value');
+    favouriteevent = favourite;
     if(favourite) {
     //Controllo lo stato dei preferiti
-        domStyle.set('favouritebuttonko', 'display','none');
-        domStyle.set('favouritebuttonok', 'display','inline');
-        searchnews(value,false,true);
-    
+        domStyle.set('favouriteeventbuttonko', 'display','none');
+        domStyle.set('favouriteeventbuttonok', 'display','inline');
+        searchoffer(value,false,true,1);    
     } else {
-        domStyle.set('favouritebuttonko', 'display','inline');
-        domStyle.set('favouritebuttonok', 'display','none');
-        searchnews(value,false,false);
+        domStyle.set('favouriteeventbuttonko', 'display','inline');
+        domStyle.set('favouriteeventbuttonok', 'display','none');
+        searchoffer(value,false,false,1);
     }
 };
 
-
-searchnewsfilter = function(){
-    fav = domStyle.get('favouritebuttonko', 'display');    
-    favouritesearch((fav=='none'));  
+searcheventfilter = function() {
+    fav = domStyle.get('favouriteeventbuttonko', 'display');    
+    favouritesearchevent((fav=='none'));  
 };
+
+pagingEvent = function(e){
+   if(e.afterBottom && !loadnextpage) {
+       loadnextpage = true;
+       
+       //Effettuo la chiamata alla pagina successica
+       startLoading();
+       
+       //Calcolo il numero di pagina da visualizzare
+       fav = domStyle.get('favouriteeventbuttonko', 'display');    
+       favouritesearchevent((fav=='none'));  
+              
+       var value = registry.byId('filterBoxEvent').get('value');    
+       searchevent(value,true,fav=='none',(actualpageevent+1), function(){
+           loadnextpage = false;
+           stopLoading();
+       });      
+   }
+};
+
+createeventdetail = function(){
+    //Elimino la vecchia visualizzazione
+    detailevent = registry.byId("eventdetail");
+    
+    //Elimino il vecchio panello
+    if( registry.byId("paneeventdetail")){
+        registry.byId("paneeventdetail").destroyRecursive(false);
+    }
+    
+    event = actualevent;
+        
+    //Creo il pannello
+    pane = new Pane({id:"paneeventdetail"});
+    
+    //Controllo date dell'offerte
+    msgdate = "Evento valido ";
+    if(event.dateFrom) {
+        msgdate += ' dal '+locale.format(new Date(event.dateFrom),{selector: "date", formatLength: "short", datePattern:dateformat});
+    }
+    
+    if(event.dateTo){
+        msgdate += ' fino al '+locale.format(new Date(event.dateTo),{selector: "date", formatLength: "short", datePattern:dateformat});
+    }  
+    
+    if(event.ragSoc){
+        msgdate += "</br>"+offer.ragSoc;
+    }
+    
+    if(event.title){
+        msgdate += "</br>"+offer.title;
+    }
+                
+    var msgBox = domConstruct.create("div", {class: "innerPaneDetail", innerHTML:msgdate}, pane.domNode);    
+    detailoffer.addChild(pane,0);  
+        
+    // Visualizzo la descrizione dell'offerta
+    if( registry.byId("paneeventdetailhtml")){
+        registry.byId("paneeventdetailhtml").destroyRecursive(false);
+    }
+    
+    //Creo il pannello
+    panehtml = new Pane({id:"paneeventdetailhtml"});
+    var msgBoxhtml = domConstruct.create("div", {class: "innerPaneDetail", innerHTML:offer.description}, panehtml.domNode);    
+    detailevent.addChild(panehtml);
+    
+    //Recupero le immagini dell'offerta
+    getEventImages(request,news.objectId,function(images){         
+        var imgs = new Array();
+        for(i=0;i<images.length;i++) {
+            var srcimage = images[i].fullPathName;
+            var obj = new Object();
+            obj.src = srcimage;  
+            imgs.push(obj);                     
+        }
+        storeofferimage.setData(imgs);
+        registry.byId("carouseleventimage").refresh();
+    });
+};
+
+
+ opensearchevent = function(){        
+        var type = domStyle.get('filterBoxEventDiv', 'display');
+        if(type=='none'){
+            domStyle.set('filterBoxEventDiv', 'display', 'block');
+        }else{
+            domStyle.set('filterBoxEventDiv', 'display', 'none');
+            registry.byId('filterBoxEvent').set('value',null);
+        }
+};
+
+
+/*****************************************************************************************************************/
+/*                                                MESSAGGI 
+/*****************************************************************************************************************/
+
+searchmessage = function(filter,append,favourite,page,callback){
+    //Carico le News    
+    startLoading();    
+    actualpagemessage = page;   
+    getMessage(request,json,filter,favourite,page,function(messages){
+        
+        var gridmessage = registry.byId("gridmessage");
+        
+        //Elimino le vecchie news
+        if(!append){
+            gridmessage.destroyDescendants();        
+        }
+        
+        //Ciclo i messaggi 
+        for(i=0;i<messages.length;i++){                        
+            //Aggiungo i Pane ed inserisco il messaggio
+            try{  
+                var html = messages[i].title;
+                                
+                if(html){
+                    pane = new Pane();                                       
+                    pane.set("bean",messages[i]);
+                    pane.on("click",function(){opendetailmessages(this.id)});
+                                        
+                    var msgBox = domConstruct.create("div", {class: "innerPane"}, pane.domNode);
+                    var labelBox = domConstruct.create("span", {innerHTML: html}, msgBox);
+                    gridmessage.addChild(pane); 
+                    pane.startup();
+                }                    
+            }catch(e){
+                errorlog("SEARCH MESSAGES",e);
+            }
+        } 
+        stopLoading();
+        if(callback){
+            callback();
+        }
+    });      
+};
+
+opendetailmessage = function(id) {
+   actualmessage = registry.byId(id).get("bean");  
+   //Apro il dettaglio del evento
+   registry.byId("tabMessage").performTransition("messagedetail", 1, "slide");    
+};
+
+
+favouritesearchmessage = function(favourite) {    
+    var value = registry.byId('filterBoxEvent').get('value');
+    favouritemessage = favourite;
+    if(favourite) {
+    //Controllo lo stato dei preferiti
+        domStyle.set('favouritemessagebuttonko', 'display','none');
+        domStyle.set('favouritemessagebuttonok', 'display','inline');
+        searchoffer(value,false,true,1);    
+    } else {
+        domStyle.set('favouritemessagebuttonko', 'display','inline');
+        domStyle.set('favouritemessagebuttonok', 'display','none');
+        searchoffer(value,false,false,1);
+    }
+};
+
+searchmessagefilter = function() {
+    fav = domStyle.get('favouritemessagebuttonko', 'display');    
+    favouritesearchmessage((fav=='none'));  
+};
+
+pagingMessage = function(e){
+   if(e.afterBottom && !loadnextpage) {
+       loadnextpage = true;
+       
+       //Effettuo la chiamata alla pagina successica
+       startLoading();
+       
+       //Calcolo il numero di pagina da visualizzare
+       fav = domStyle.get('favouritebuttonko', 'display');    
+       favouritesearchmessage((fav=='none'));  
+              
+       var value = registry.byId('filterBoxEvent').get('value');    
+       searchmessage(value,true,fav=='none',(actualpagemessage+1), function(){
+           loadnextpage = false;
+           stopLoading();
+       });      
+   }
+};
+
+createmessagedetail = function(){
+    //Elimino la vecchia visualizzazione
+    detailmessage = registry.byId("messagedetail");
+  
+    message = actualobject;
+         
+    // Visualizzo la descrizione del messaggio
+    if(registry.byId("panemessagedetailhtml")){
+       registry.byId("panemessagedetailhtml").destroyRecursive(false);
+    } 
+    //Creo il pannello
+    panehtml = new Pane({id:"panemessagedetailhtml"});
+    var msgBoxhtml = domConstruct.create("div", {class: "innerPaneDetail", innerHTML:message.description}, panehtml.domNode);    
+    detailmessage.addChild(panehtml);
+};
+
+ opensearchmessage = function(){        
+        var type = domStyle.get('filterBoxMessageDiv', 'display');
+        if(type=='none'){
+            domStyle.set('filterBoxMessageDiv', 'display', 'block');
+        }else{
+            domStyle.set('filterBoxMessageDiv', 'display', 'none');
+            registry.byId('filterBoxMessage').set('value',null);
+        }
+};
+
 
 
 /*****************************************************************************************************************/
@@ -555,7 +1207,18 @@ scanqrcode = function() {
 			//var prog = ProgressIndicator.getInstance();
 			//prog.stop();
             registry.byId('loading').hide();
-		};	
+		};
+
+
+        isLoading = function(){
+            //var prog = ProgressIndicator.getInstance();
+			
+            //dom.byId("ViewApplication").appendChild(prog.domNode);
+            //prog.start();
+            alert(registry.byId('loading').get('display'));
+            return false;
+		};
+
 		
 		/**
 		 *  Gestione delle date 

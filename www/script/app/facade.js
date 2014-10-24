@@ -123,19 +123,241 @@ setMerchantPreferredByQrCode = function(request,qrcode,callback){
                 }else{
                     errorlog(message[0]);
                 }
-            }
-                    
+            }                    
             if(!error){
                 callback();           
+            }            
+        },
+        function(error) {
+            errorlog("Errore Salvataggio Preferenza",error);            
+        });
+};
+
+
+
+getEvent = function(request,json, filter,favourite, page, callback){
+        
+    jsonbean = new Object();
+       
+    //Setto il device ID
+    jsonbean.deviceId = deviceID;
+    
+    //Setto il numero di righe per pagina
+    jsonbean.numRows = rowforpage;      
+    
+    //Setto i preferiti
+    if(favourite){
+        jsonbean.star = favourite;
+    }
+    
+    //Righe di partenza
+    startrow = 0;
+    if(page>1){
+        startrow = (page-1)*rowforpage;
+    }    
+    jsonbean.startRow = startrow;
+    
+    if(filter){
+        jsonbean.filter = filter;
+    }
+    
+    var datajson = json.stringify(jsonbean);
+    var urllogin = url+"FacadeClient/getEventFilter";
+    var promise = request.post(urllogin,{
+    handleAs: "json",
+    data: datajson,
+    headers: {
+            "X-Requested-With": null,
+            "Content-Type":"application/json"                        
+            }           
+    }); 
+    
+    promise.response.then(
+        function(response) {
+            //Controllo messaggi di errore
+            var message = response.data.messageList;
+            error = false;
+            if(message && message.length>0){
+                if(message[0]=='IROK'){
+                    error = false;
+                }else{
+                    errorlog(message[0]);
+                }
+            }
+                    
+            //Recupeoro i dati delle news
+            if(!error){
+                var events = response.data.objectList;
+                callback(events);           
+            }            
+        },
+        function(error) {
+            errorlog("Errore Recupero Evento",error);            
+        });
+};
+
+
+getEventImages = function(request,eventId,callback){
+    
+    var urllogin = url+"FacadeClient/getEventImages?deviceId="+deviceID+"&eventId="+eventId;
+    var promise = request.post(urllogin,{
+    handleAs: "json",
+    headers: {
+            "X-Requested-With": null,
+            "Content-Type":"application/json"                        
+            }           
+    }); 
+    
+    promise.response.then(
+        function(response) {
+            //Controllo messaggi di errore
+            var message = response.data.messageList;
+            error = false;
+            if(message && message.length>0){
+                if(message[0]=='IROK'){
+                    error = false;
+                }else{
+                    errorlog(message[0]);
+                }
+            }
+                    
+            //Recupeoro i dati delle immagini
+            if(!error){
+                var images = response.data.objectList;
+                callback(images);           
             }
             
         },
         function(error) {
-            errorlog("Errore Salvataggio Preferenza",error);            
+            errorlog("Errore Recupero Immagini",error);            
         });   
+};
 
+
+
+getMessage = function(request,json, filter,favourite, page, callback){
+        
+    jsonbean = new Object();
+       
+    //Setto il device ID
+    jsonbean.deviceId = deviceID;
+    
+    //Setto il numero di righe per pagina
+    jsonbean.numRows = rowforpage;      
+    
+    //Setto i preferiti
+    if(favourite){
+        jsonbean.star = favourite;
+    }
+    
+    //Righe di partenza
+    startrow = 0;
+    if(page>1){
+        startrow = (page-1)*rowforpage;
+    }    
+    jsonbean.startRow = startrow;
+    
+    if(filter){
+        jsonbean.filter = filter;
+    }
+    
+    var datajson = json.stringify(jsonbean);
+    var urllogin = url+"FacadeClient/getMessagesFilter";
+    var promise = request.post(urllogin,{
+    handleAs: "json",
+    data: datajson,
+    headers: {
+            "X-Requested-With": null,
+            "Content-Type":"application/json"                        
+            }           
+    }); 
+    
+    promise.response.then(
+        function(response) {
+            //Controllo messaggi di errore
+            var message = response.data.messageList;
+            error = false;
+            if(message && message.length>0){
+                if(message[0]=='IROK'){
+                    error = false;
+                }else{
+                    errorlog(message[0]);
+                }
+            }
+                    
+            //Recupeoro i dati delle news
+            if(!error){
+                var messages = response.data.objectList;
+                callback(messages);           
+            }            
+        },
+        function(error) {
+            errorlog("Errore Recupero Messaggi",error);            
+        });
 }
 
+
+
+getOffer = function(request,json, filter,favourite, page, callback){
+        
+    jsonbean = new Object();
+       
+    //Setto il device ID
+    jsonbean.deviceId = deviceID;
+    
+    //Setto il numero di righe per pagina
+    jsonbean.numRows = rowforpage;      
+    
+    //Setto i preferiti
+    if(favourite){
+        jsonbean.star = favourite;
+    }
+    
+    //Righe di partenza
+    startrow = 0;
+    if(page>1){
+        startrow = (page-1)*rowforpage;
+    }    
+    jsonbean.startRow = startrow;
+    
+    if(filter){
+        jsonbean.filter = filter;
+    }
+    
+    var datajson = json.stringify(jsonbean);
+    var urllogin = url+"FacadeClient/getOfferFilter";
+    var promise = request.post(urllogin,{
+    handleAs: "json",
+    data: datajson,
+    headers: {
+            "X-Requested-With": null,
+            "Content-Type":"application/json"                        
+            }           
+    }); 
+    
+    promise.response.then(
+        function(response) {
+            //Controllo messaggi di errore
+            var message = response.data.messageList;
+            error = false;
+            if(message && message.length>0){
+                if(message[0]=='IROK'){
+                    error = false;
+                }else{
+                    errorlog(message[0]);
+                }
+            }
+                    
+            //Recupeoro i dati delle news
+            if(!error){
+                var offers = response.data.objectList;
+                callback(offers);           
+            }            
+        },
+        function(error) {
+            errorlog("Errore Recupero Offerte",error);            
+        });
+};
 
 
 
