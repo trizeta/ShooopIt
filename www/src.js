@@ -528,7 +528,7 @@ require([
             alert('error = ' + error);
         };
 
-        function onNotificationAPN (event) {
+        onNotificationAPN = function (event) {
             if ( event.alert )
             {
                 navigator.notification.alert(event.alert);
@@ -544,9 +544,9 @@ require([
             {
                 pushNotification.setApplicationIconBadgeNumber(successHandler, errorHandler, event.badge);
             }
-        }
+        };
         
-        function onNotification(e) {
+        onNotification = function(e) {
             alert('<li>EVENT -> RECEIVED:' + e.event + '</li>');
 
             switch( e.event )
@@ -602,7 +602,7 @@ require([
                 alert('<li>EVENT -> Unknown, an event was received and we do not know what it is</li>');
             break;
           }
-        }
+        };
 
 
         /***************************************************************************************************************************/
