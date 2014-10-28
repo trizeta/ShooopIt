@@ -54,7 +54,7 @@ actualmerchantid = null;
 loadnextpage = false;
 
 //PushNotification
-pushNotification;
+pushNotification = null;
 
 
 /* Configurazione Iniziale */
@@ -435,7 +435,7 @@ require([
             
             //Attivo il push notification
             try{
-                //pushNotification = window.plugins.pushNotification;
+                pushNotification = window.plugins.pushNotification;
             }catch(e){
             
             }
