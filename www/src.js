@@ -4,6 +4,8 @@
 user = null;
 debug = false;
 url = "http://37.59.80.107/messaging/rest/";
+//url = "http://192.168.1.16:8080/messaging/rest/";
+
 urlimage = "http://37.59.80.107/images/";
 
 //Variabile per il messaggio
@@ -22,22 +24,31 @@ deviceID = null;
 //News
 actualpagenews = 1;
 actualobject = null;
-favouritenews = false;
+favouritenews = true;
 
 //Offerta
 actualoffer = null;
 actualpageoffer = 1;
-favouriteoffer = false;
+favouriteoffer = true;
 
 //Messaggio
 actualmessage = null;
 actualpagemessage = 1;
-favouritemessage = false;
+favouritemessage = true;
 
 //Evento
 actualevent = null;
 actualpageevent = 1;
-favouriteevent = false;
+favouriteevent = true;
+
+//Showcase
+actualshowcase = null;
+actualpageshowcase = 1;
+favouriteshowcase = true;
+
+//MerchantID
+actualmerchantid = null;
+
 
 //Flag di caricamento pagina
 loadnextpage = false;
@@ -128,7 +139,7 @@ require([
 ], function(ready, win, domConstruct, Memory, Observable, registry, on, dom,ProgressIndicator,stamp,locale,domStyle,ListItem,array,connect,domClass,ToolBarButton,IconItem,SimpleDialog,Button,SwapView,CarouselItem,Icon,PageIndicator,request,json,Pane,number,Carousel) {
 	
 		var dateformat = "dd/MM/yyyy";
-        var prognews, progoffer, progmessage, progeventi; 
+        var prognews, progoffer, progmessage, progeventi,progshowcase;
         var delItem, handler;
          
         /* Caricamento dinamico dei bottoni */
@@ -140,7 +151,8 @@ require([
         } 
         
         storeofferimage = dojo.store.Observable(new Memory({}));
-        
+        storeshowcaseimage = dojo.store.Observable(new Memory({}));
+        storeeventimage = dojo.store.Observable(new Memory({}));
         
 		ready(function() {
 	    	document.addEventListener("deviceready", onDeviceReady, false);   
@@ -160,13 +172,12 @@ require([
             domStyle.set('filterBoxOfferDiv', 'display', 'none');
             domStyle.set('filterBoxMessageDiv', 'display', 'none');
             domStyle.set('filterBoxEventDiv', 'display', 'none');
-                        
+            domStyle.set('filterBoxShowcaseDiv', 'display', 'none');                        
             
             domStyle.set('headingnews', 'display', 'inline');
             domStyle.set('searchnewsfilterbutton', 'display', 'inline'); 
-            domStyle.set('favouritenewsbuttonko', 'display', 'inline'); 
-            
-            
+            domStyle.set('favouritenewsbuttonok', 'display', 'inline'); 
+                        
             
             /****************************************************************************
             *   Aggiungo il controllo dei bottoni prima della transazione di apertura   *
@@ -187,7 +198,17 @@ require([
                 }else{
                     domStyle.set('favouriteofferbuttonok', 'display', 'inline'); 
                 }
+                
+                //Controllo se ha già offerte caricate altrimenti richiamo il metodo
+                var children = registry.byId('gridoffer').getChildren();
+                if(!children || children.length == 0){
+                    startLoading();
+                    searchoffer(null,false,favouriteoffer,1,function(){
+                        stopLoading();
+                    });
+                }
             });
+                      
             
             dojo.connect(registry.byId("tabOffer"), "onBeforeTransitionOut", null, function(){
                 domStyle.set('headingoffer', 'display', 'none'); 
@@ -201,8 +222,9 @@ require([
             
             dojo.connect(registry.byId("offerdetail"), "onBeforeTransitionIn", null, function(){
                 //Creo il dettaglio dell'offerta
-                createofferdetail(actualobject); 
-                domStyle.set('headingoffer', 'display', 'inline');                         
+                createofferdetail(actualoffer); 
+                domStyle.set('headingoffer', 'display', 'inline');    
+                selectTab('tabinnershowcaseoffer');
                 
             });
             
@@ -221,7 +243,7 @@ require([
                     domStyle.set('favouritenewsbuttonko', 'display', 'inline'); 
                 } else {
                     domStyle.set('favouritenewsbuttonok', 'display', 'inline');                
-                }                
+                }
             });
             
             dojo.connect(registry.byId("tabNews"), "onBeforeTransitionOut", null, function(){
@@ -244,6 +266,17 @@ require([
                 } else {
                     domStyle.set('favouritemessagebuttonok', 'display', 'inline');  
                 }
+                
+                //Controllo se ha già offerte caricate altrimenti richiamo il metodo
+                var children = registry.byId('gridmessage').getChildren();
+                if(!children || children.length == 0){
+                    startLoading();
+                    searchmessage(null,false,favouritemessage,1,function(){
+                        stopLoading();
+                    });
+                }
+                
+                
             });
             
             dojo.connect(registry.byId("tabMessage"), "onBeforeTransitionOut", null, function(){
@@ -258,7 +291,7 @@ require([
                         
             dojo.connect(registry.byId("messagedetail"), "onBeforeTransitionIn", null, function(){
                 //Creo il dettaglio dell'offerta
-                createmessagedetail(actualobject); 
+                createmessagedetail(actualmessage); 
                 domStyle.set('headingmessage', 'display', 'inline'); 
             });
             
@@ -277,6 +310,14 @@ require([
                 } else {
                     domStyle.set('favouriteeventbuttonok', 'display', 'inline');                 
                 }
+                
+                var children = registry.byId('gridevent').getChildren();
+                if(!children || children.length == 0){
+                    startLoading();
+                    searchevent(null,false,favouriteevent,1,function(){
+                        stopLoading();
+                    });
+                }              
             });
             
             dojo.connect(registry.byId("tabEvent"), "onBeforeTransitionOut", null, function(){
@@ -285,19 +326,95 @@ require([
                 domStyle.set('searcheventfilterbutton', 'display', 'none'); 
                 domStyle.set('favouriteeventbuttonko', 'display', 'none'); 
                 domStyle.set('favouriteeventbuttonok', 'display', 'none');  
-                
+                              
             });            
             
             dojo.connect(registry.byId("eventdetail"), "onBeforeTransitionIn", null, function(){
                 //Creo il dettaglio dell'offerta
-                createeventdetail(actualobject); 
+                createeventdetail(actualevent); 
                 domStyle.set('headingevent', 'display', 'inline'); 
+                selectTab('tabinnershowcaseevent');
             });
             
-            dojo.connect(registry.byId("eventdetail"), "onBeforeTransitionIn", null, function(){
+            dojo.connect(registry.byId("eventdetail"), "onBeforeTransitionOut", null, function(){
                 domStyle.set('headingevent', 'display', 'none'); 
-            });             
-                        
+            }); 
+            
+             /* SHOWCASE */
+            dojo.connect(registry.byId("tabShowcase"), "onBeforeTransitionIn", null, function(){
+                domStyle.set('headingshowcase', 'display', 'inline');   
+                
+                //Nascondo i bottoni
+                domStyle.set('searchshowcasefilterbutton', 'display', 'inline'); 
+                if(!favouriteshowcase){
+                    domStyle.set('favouriteshowcasebuttonko', 'display', 'inline'); 
+                }else{
+                    domStyle.set('favouriteshowcasebuttonok', 'display', 'inline'); 
+                }
+                
+                var children = registry.byId('gridshowcase').getChildren();
+                if(!children || children.length == 0){
+                    startLoading();
+                    searchshowcase(null,false,favouriteshowcase,1,function(){
+                        stopLoading();
+                    });
+                }
+               
+                
+            });
+            
+            dojo.connect(registry.byId("tabShowcase"), "onBeforeTransitionOut", null, function(){
+                domStyle.set('headingshowcase', 'display', 'none'); 
+                
+                //Nascondo i bottoni
+                domStyle.set('searchshowcasefilterbutton', 'display', 'none'); 
+                domStyle.set('favouriteshowcasebuttonko', 'display', 'none'); 
+                domStyle.set('favouriteshowcasebuttonok', 'display', 'none'); 
+                
+            });
+            
+            dojo.connect(registry.byId("showcasedetail"), "onBeforeTransitionIn", null, function(){
+                //Creo il dettaglio dell'offerta
+                createshowcasedetail(); 
+                domStyle.set('headingshowcase', 'display', 'inline');  
+                selectTab('tabinnershowcaseshowcase');
+                
+                //Setto il merhcantid
+                if(actualobject){
+                    actualmerchantid = actualobject.merchantId; 
+                }else{
+                    actualmerchantid = actualshowcase.merchantId; 
+                }
+                            
+                //Elimino eventi, offerte e messaggi
+                registry.byId('gridoffer').destroyDescendants();
+                registry.byId('gridevent').destroyDescendants();
+                registry.byId('gridmessage').destroyDescendants();
+                                
+                //Controllo se il negozio è nei preferiti o no                
+                isShowcasePreferred(request,actualmerchantid, function(preferred){
+                
+                    if(preferred){
+                        domStyle.set('favouriteshowcasedetailbuttonko', 'display', 'none');
+                        domStyle.set('favouriteshowcasedetailbuttonok', 'display', 'inline');
+                    }else{
+                        domStyle.set('favouriteshowcasedetailbuttonko', 'display', 'inline');
+                        domStyle.set('favouriteshowcasedetailbuttonok', 'display', 'none');
+                    }
+                });                
+                            
+            });
+            
+            dojo.connect(registry.byId("showcasedetail"), "onBeforeTransitionOut", null, function(){
+                //Creo il dettaglio dell'offerta
+                domStyle.set('headingshowcase', 'display', 'none');                 
+                
+                domStyle.set('favouriteshowcasedetailbuttonko', 'display', 'none');
+                domStyle.set('favouriteshowcasedetailbuttonok', 'display', 'none');
+            }); 
+            
+            
+            /* EVENTO DEL CAROUSEL DELLE IMMAGINI */            
             connect.subscribe("/dojox/mobile/carouselSelect", function(carousel, itemWidget, itemObject, index){
                 //Visualizzo a tutto schermo l'immagine
                 var imgdetailview = registry.byId("imagedetail");            
@@ -308,7 +425,7 @@ require([
             });
                         
             //TODO DA COMMENTARE PER NATIVA
-            //onDeviceReady(); 
+            onDeviceReady(); 
 	    });
 		
         function onDeviceReady() {
@@ -331,13 +448,29 @@ require([
                 errorlog("ERROR LOAD NEWS",e);
             } 
             
-             try{   
+            try{   
                 //Nascondo lo splah screen
                 navigator.splashscreen.hide();                      
             } catch(e) {
                 errorlog("ERRORE VIEW APP - 100",e);
             } 
             document.addEventListener("backbutton", onBackKeyDown, false);     
+                    
+            //Setto il deviceinfo
+            try{
+                //Recupero id del dispositivo
+                deviceID = device.uuid;
+                startLoading();                
+                brand = null;
+                model = device.name;
+                opsystem = device.platform;
+                opversion = device.version;               
+                setDeviceInfo(request,brand,model,opsystem,opversion,function(){
+                    stopLoading();
+                });
+            }catch(e) {
+               //Non faccio nulla e non salvo le preferenze
+            } 
         };
     
         onBackKeyDown = function(e){
@@ -370,8 +503,8 @@ require([
 			dom.byId("prognews").appendChild(prognews.domNode);
 			prognews.start();
              
-            //TODO Aggiungere filtro
-            searchnews(null,false,false,1,function(){
+            var value = dom.byId('filterBoxNews').value;
+            searchnews(value,false,false,1,function(){
                 registry.byId("tabNews").slideTo({y:0}, 0.3, "ease-out");
                 prognews.stop();
                 dom.byId("iconnews").style.display = "inline"; 
@@ -397,9 +530,9 @@ require([
 			dom.byId("msg1offer").innerHTML = "Attendere...";
 			dom.byId("progoffer").appendChild(progoffer.domNode);
 			progoffer.start();
-             
-            //TODO Aggiungere filtro
-            searchoffer(null,false,false,1,function(){
+                    
+            var value = registry.byId('filterBoxOffer').get('value');
+            searchoffer(value,false,favouriteoffer,1,function(){
                 registry.byId("tabOffer").slideTo({y:0}, 0.3, "ease-out");
                 progoffer.stop();
                 dom.byId("iconoffer").style.display = "inline"; 
@@ -426,8 +559,8 @@ require([
 			dom.byId("progevent").appendChild(progevent.domNode);
 			progevent.start();
              
-            //TODO Aggiungere filtro
-            searchevent(null,false,false,1,function(){
+            var value = registry.byId('filterBoxEvent').get('value');
+            searchevent(value,false,false,1,function(){
                 registry.byId("tabEvent").slideTo({y:0}, 0.3, "ease-out");
                 progevent.stop();
                 dom.byId("iconevent").style.display = "inline"; 
@@ -455,15 +588,53 @@ require([
 			dom.byId("progmessage").appendChild(progmessage.domNode);
 			progmessage.start();
              
-            //TODO Aggiungere filtro
-            searchmessage(null,false,false,1,function(){
+            var value = registry.byId('filterBoxMessage').get('value');
+            searchmessage(value,false,false,1,function(){
                 registry.byId("tabMessage").slideTo({y:0}, 0.3, "ease-out");
                 progmessage.stop();
                 dom.byId("iconmessage").style.display = "inline"; 
             });                      
          };
 
+
+         /* Funzione di pull per sincronizzare delle Vetrine */
+         onPullShowcase = function(view, y, h){
+          dom.byId("msg1showcase").innerHTML = percent < 100 ? "Tira per aggiornare le vetrine" : "Rilascia per aggiornare le vetrine";
+          y = y > h ? h : y;
+          var percent = y / h * 100;
+          var deg = -1.8 * percent + 360;
+          dom.byId("iconshowcase").style.webkitTransform = "rotate(" + deg + "deg)";
+        };
         
+        /* Funzione di Pulled per sincronizzare */
+        onPulledShowcase = function(view){
+          if(!progshowcase){
+					progshowcase = new ProgressIndicator({size:20, center:false});
+            }
+			if(progshowcase.timer){ return; }
+			dom.byId("iconshowcase").style.display = "none";
+			dom.byId("msg1showcase").innerHTML = "Attendere...";
+			dom.byId("progshowcase").appendChild(progshowcase.domNode);
+			progevent.start();
+             
+            var value = registry.byId('filterBoxShowcase').get('value');
+            searchshowcase(value,false,false,1,function(){
+                registry.byId("tabShowcase").slideTo({y:0}, 0.3, "ease-out");
+                progshowcase.stop();
+                dom.byId("iconshowcase").style.display = "inline"; 
+            });                      
+         };
+
+        
+/****************************************************************************************************************
+*                                   METODI GENERALI
+****************************************************************************************************************/
+
+
+selectTab = function(idmess) {
+    registry.byId(idmess).set("selected",true);
+};
+
 
 /****************************************************************************************************************
 *                                   NEWS
@@ -545,18 +716,21 @@ opendetailnews = function(id) {
     actualobject = news;    
     if(news.objectType=='O'){
         //Apro il dettaglio dell'offerta
+        actualoffer = news; 
         registry.byId("tabNews").performTransition("offerdetail", 1, "slide"); 
     }else if(news.objectType=='E'){
         //Apro il dettaglio dell'evento
+        actualevent = news; 
         registry.byId("tabNews").performTransition("eventdetail", 1, "slide"); 
     }else if(news.objectType=='M'){
         //Apro il dettaglio del messaggio
+        actualmessage = news; 
         registry.byId("tabNews").performTransition("messagedetail", 1, "slide"); 
     }
 };
 
 favouritesearchnews = function(favourite) {    
-    var value = registry.byId('filterBoxNews').get('value');
+    var value = dom.byId('filterBoxNews').value;
     favouritenews = favourite;
     if(favourite) {
     //Controllo lo stato dei preferiti
@@ -572,8 +746,7 @@ favouritesearchnews = function(favourite) {
 };
 
 searchnewsfilter = function(){
-    fav = domStyle.get('favouritenewsbuttonko', 'display');    
-    favouritesearchnews((fav=='none'));  
+    favouritesearchnews(favouritenews);  
 };
 
 pagingNews = function(e){
@@ -584,11 +757,10 @@ pagingNews = function(e){
        startLoading();
        
        //Calcolo il numero di pagina da visualizzare
-       fav = domStyle.get('favouritenewsbuttonko', 'display');    
-       favouritesearchnews((fav=='none'));  
+       favouritesearchnews(favouritenews);  
               
-       var value = registry.byId('filterBoxNews').get('value');    
-       searchnews(value,true,fav=='none',(actualpagenews+1), function(){
+       var value = dom.byId('filterBoxNews').value;;    
+       searchnews(value,true,favouritenews,(actualpagenews+1), function(){
            loadnextpage = false;
            stopLoading();
        });
@@ -603,7 +775,7 @@ pagingNews = function(e){
             domStyle.set('filterBoxNewsDiv', 'display', 'block');
         }else{
             domStyle.set('filterBoxNewsDiv', 'display', 'none');
-            registry.byId('filterBoxNews').set('value',null);
+            dom.byId('filterBoxNews').value = null;
         }
 };
 
@@ -615,8 +787,11 @@ pagingNews = function(e){
 searchoffer = function(filter,append,favourite,page,callback){
     //Carico le News    
     startLoading();    
-    actualpageoffer = page;   
-    getOffer(request,json,filter,favourite,page,function(offers){
+    actualpageoffer = page;  
+    
+    merchantid = actualmerchantid;
+    
+    getOffer(request,json,filter,merchantid,favourite,page,function(offers){
         
         var gridoffer = registry.byId("gridoffer");
         
@@ -637,7 +812,7 @@ searchoffer = function(filter,append,favourite,page,callback){
                     pane.on("click",function(){opendetailoffer(this.id)});
                                         
                     var msgBox = domConstruct.create("div", {class: "innerPane"}, pane.domNode);
-                    var srcimage = urlimage+news[i].fullPathName;
+                    var srcimage = urlimage+offers[i].fullPathName;
                     var imgBox = domConstruct.create("img", {src:srcimage, class:"innerPaneImg"}, msgBox);
                     //Controllo se esiste l'immagine
                     ImgCache.isCached(srcimage, function(path, success) {                    
@@ -688,8 +863,7 @@ favouritesearchoffer = function(favourite) {
 };
 
 searchofferfilter = function() {
-    fav = domStyle.get('favouriteofferbuttonko', 'display');    
-    favouritesearchoffer((fav=='none'));  
+    favouritesearchoffer(favouriteoffer);  
 };
 
 pagingOffer = function(e){
@@ -700,11 +874,10 @@ pagingOffer = function(e){
        startLoading();
        
        //Calcolo il numero di pagina da visualizzare
-       fav = domStyle.get('favouriteofferbuttonko', 'display');    
-       favouriteoffer((fav=='none'));  
+       favouritesearchoffer(favouriteoffer);  
               
        var value = registry.byId('filterBoxOffer').get('value');    
-       searchoffer(value,true,fav=='none',(actualpagenews+1), function(){
+       searchoffer(value,true,favouriteoffer,(actualpageoffer+1), function(){
            loadnextpage = false;
            stopLoading();
        });      
@@ -720,7 +893,7 @@ createofferdetail = function(){
         registry.byId("paneofferdetail").destroyRecursive(false);
     }
     
-    offer = actualobject;
+    offer = actualoffer;
         
     //Creo il pannello
     pane = new Pane({id:"paneofferdetail"});
@@ -763,8 +936,13 @@ createofferdetail = function(){
     var msgBoxhtml = domConstruct.create("div", {class: "innerPaneDetail", innerHTML:offer.description}, panehtml.domNode);    
     detailoffer.addChild(panehtml);
     
+    objectId = offer.objectId;
+    if(!objectId){
+        objectId = offer.offerId;
+    }
+    
     //Recupero le immagini dell'offerta
-    getOfferImages(request,news.objectId,function(images){         
+    getOfferImages(request,objectId,function(images){         
         var imgs = new Array();
         for(i=0;i<images.length;i++) {
             var srcimage = images[i].fullPathName;
@@ -796,8 +974,12 @@ createofferdetail = function(){
 searchevent = function(filter,append,favourite,page,callback){
     //Carico le News    
     startLoading();    
-    actualpageevent = page;   
-    getEvent(request,json,filter,favourite,page,function(events){
+    actualpageevent = page;
+    merchantid = actualmerchantid;
+    
+    
+    
+    getEvent(request,json,filter,merchantid,favourite,page,function(events){
         
         var gridevent = registry.byId("gridevent");
         
@@ -818,7 +1000,7 @@ searchevent = function(filter,append,favourite,page,callback){
                     pane.on("click",function(){opendetailevent(this.id)});
                                         
                     var msgBox = domConstruct.create("div", {class: "innerPane"}, pane.domNode);
-                    var srcimage = urlimage+news[i].fullPathName;
+                    var srcimage = urlimage+events[i].fullPathName;
                     var imgBox = domConstruct.create("img", {src:srcimage, class:"innerPaneImg"}, msgBox);
                     //Controllo se esiste l'immagine
                     ImgCache.isCached(srcimage, function(path, success) {                    
@@ -860,17 +1042,16 @@ favouritesearchevent = function(favourite) {
     //Controllo lo stato dei preferiti
         domStyle.set('favouriteeventbuttonko', 'display','none');
         domStyle.set('favouriteeventbuttonok', 'display','inline');
-        searchoffer(value,false,true,1);    
+        searchevent(value,false,true,1);    
     } else {
         domStyle.set('favouriteeventbuttonko', 'display','inline');
         domStyle.set('favouriteeventbuttonok', 'display','none');
-        searchoffer(value,false,false,1);
+        searchevent(value,false,false,1);
     }
 };
 
 searcheventfilter = function() {
-    fav = domStyle.get('favouriteeventbuttonko', 'display');    
-    favouritesearchevent((fav=='none'));  
+    favouritesearchevent(favouriteevent);  
 };
 
 pagingEvent = function(e){
@@ -881,11 +1062,10 @@ pagingEvent = function(e){
        startLoading();
        
        //Calcolo il numero di pagina da visualizzare
-       fav = domStyle.get('favouriteeventbuttonko', 'display');    
-       favouritesearchevent((fav=='none'));  
+       favouritesearchevent(favouriteevent);  
               
        var value = registry.byId('filterBoxEvent').get('value');    
-       searchevent(value,true,fav=='none',(actualpageevent+1), function(){
+       searchevent(value,true,favouriteevent,(actualpageevent+1), function(){
            loadnextpage = false;
            stopLoading();
        });      
@@ -937,8 +1117,13 @@ createeventdetail = function(){
     var msgBoxhtml = domConstruct.create("div", {class: "innerPaneDetail", innerHTML:offer.description}, panehtml.domNode);    
     detailevent.addChild(panehtml);
     
+    objectId = event.objectId;
+    if(!objectId){
+        objectId = event.eventId;
+    }
+    
     //Recupero le immagini dell'offerta
-    getEventImages(request,news.objectId,function(images){         
+    getEventImages(request,objectId,function(images){         
         var imgs = new Array();
         for(i=0;i<images.length;i++) {
             var srcimage = images[i].fullPathName;
@@ -946,7 +1131,7 @@ createeventdetail = function(){
             obj.src = srcimage;  
             imgs.push(obj);                     
         }
-        storeofferimage.setData(imgs);
+        storeeventimage.setData(imgs);
         registry.byId("carouseleventimage").refresh();
     });
 };
@@ -970,8 +1155,11 @@ createeventdetail = function(){
 searchmessage = function(filter,append,favourite,page,callback){
     //Carico le News    
     startLoading();    
-    actualpagemessage = page;   
-    getMessage(request,json,filter,favourite,page,function(messages){
+    actualpagemessage = page;
+    
+     merchantid = actualmerchantid;
+    
+    getMessage(request,json,filter,merchantid,favourite,page,function(messages){
         
         var gridmessage = registry.byId("gridmessage");
         
@@ -984,12 +1172,12 @@ searchmessage = function(filter,append,favourite,page,callback){
         for(i=0;i<messages.length;i++){                        
             //Aggiungo i Pane ed inserisco il messaggio
             try{  
-                var html = messages[i].title;
+                var html = messages[i].description;
                                 
                 if(html){
                     pane = new Pane();                                       
                     pane.set("bean",messages[i]);
-                    pane.on("click",function(){opendetailmessages(this.id)});
+                    pane.on("click",function(){opendetailmessage(this.id)});
                                         
                     var msgBox = domConstruct.create("div", {class: "innerPane"}, pane.domNode);
                     var labelBox = domConstruct.create("span", {innerHTML: html}, msgBox);
@@ -1021,17 +1209,16 @@ favouritesearchmessage = function(favourite) {
     //Controllo lo stato dei preferiti
         domStyle.set('favouritemessagebuttonko', 'display','none');
         domStyle.set('favouritemessagebuttonok', 'display','inline');
-        searchoffer(value,false,true,1);    
+        searchmessage(value,false,true,1);    
     } else {
         domStyle.set('favouritemessagebuttonko', 'display','inline');
         domStyle.set('favouritemessagebuttonok', 'display','none');
-        searchoffer(value,false,false,1);
+        searchmessage(value,false,false,1);
     }
 };
 
 searchmessagefilter = function() {
-    fav = domStyle.get('favouritemessagebuttonko', 'display');    
-    favouritesearchmessage((fav=='none'));  
+    favouritesearchmessage(favouritemessage);  
 };
 
 pagingMessage = function(e){
@@ -1042,11 +1229,10 @@ pagingMessage = function(e){
        startLoading();
        
        //Calcolo il numero di pagina da visualizzare
-       fav = domStyle.get('favouritebuttonko', 'display');    
-       favouritesearchmessage((fav=='none'));  
+       favouritesearchmessage(favouritemessage);  
               
        var value = registry.byId('filterBoxEvent').get('value');    
-       searchmessage(value,true,fav=='none',(actualpagemessage+1), function(){
+       searchmessage(value,true,favouritemessage,(actualpagemessage+1), function(){
            loadnextpage = false;
            stopLoading();
        });      
@@ -1057,7 +1243,7 @@ createmessagedetail = function(){
     //Elimino la vecchia visualizzazione
     detailmessage = registry.byId("messagedetail");
   
-    message = actualobject;
+    message = actualmessage;
          
     // Visualizzo la descrizione del messaggio
     if(registry.byId("panemessagedetailhtml")){
@@ -1082,6 +1268,192 @@ createmessagedetail = function(){
 
 
 /*****************************************************************************************************************/
+/*                                                SHOWCASE 
+/*****************************************************************************************************************/
+
+searchshowcase = function(filter,append,favourite,page,callback){
+    //Carico le News    
+    startLoading();    
+    actualpageshowcase = page;   
+    getShowcase(request,json,filter,favourite,page,function(showcases){
+        
+        var gridshowcase = registry.byId("gridshowcase");
+        
+        //Elimino le vecchie news
+        if(!append){
+            gridshowcase.destroyDescendants();        
+        }
+        
+        //Ciclo le news 
+        for(i=0;i<showcases.length;i++){                        
+            //Aggiungo i Pane e carico le immagini
+            try{  
+                var html = showcases[i].ragSoc;
+                                
+                if(html){
+                    pane = new Pane();                                       
+                    pane.set("bean",showcases[i]);
+                    pane.on("click",function(){opendetailshowcase(this.id)});
+                                        
+                    var msgBox = domConstruct.create("div", {class: "innerPane"}, pane.domNode);
+                    var srcimage = urlimage+showcases[i].fullPathName;
+                    var imgBox = domConstruct.create("img", {src:srcimage, class:"innerPaneImg"}, msgBox);
+                    //Controllo se esiste l'immagine
+                    ImgCache.isCached(srcimage, function(path, success) {                    
+                        if(success) {
+                            ImgCache.useCachedFile(imgBox);
+                        } else {
+                            ImgCache.cacheFile(srcimage, function(){
+                                ImgCache.useCachedFile(imgBox);
+                            });
+                        }
+                    });   
+                    
+                    var labelBox = domConstruct.create("span", {innerHTML: html}, msgBox);
+                    gridshowcase.addChild(pane); 
+                    pane.startup();
+                }                    
+            }catch(e){
+                errorlog("SEARCH SHOWCASES",e);
+            }
+        } 
+        stopLoading();
+        if(callback){
+            callback();
+        }
+    });      
+};
+
+opendetailshowcase = function(id) {
+   actualshowcase = registry.byId(id).get("bean");  
+   //Apro il dettaglio dell'offerta
+   registry.byId("tabShowcase").performTransition("showcasedetail", 1, "slide");    
+};
+
+
+favouritesearchshowcase = function(favourite) {    
+    var value = registry.byId('filterBoxShowcase').get('value');
+    favouriteshowcase = favourite;
+    if(favourite) {
+    //Controllo lo stato dei preferiti
+        domStyle.set('favouriteshowcasebuttonko', 'display','none');
+        domStyle.set('favouriteshowcasebuttonok', 'display','inline');
+        searchshowcase(value,false,true,1);    
+    } else {
+        domStyle.set('favouriteshowcasebuttonko', 'display','inline');
+        domStyle.set('favouriteshowcasebuttonok', 'display','none');
+        searchshowcase(value,false,false,1);
+    }
+};
+
+searchshowcasefilter = function() {
+    favouritesearchshowcase(favouriteshowcase);  
+};
+
+pagingShowcase = function(e){
+   if(e.afterBottom && !loadnextpage) {
+       loadnextpage = true;
+       
+       //Effettuo la chiamata alla pagina successica
+       startLoading();
+       
+       //Calcolo il numero di pagina da visualizzare
+      favouritesearchshowcase(favouriteshowcase);  
+             
+       var value = registry.byId('filterBoxShowcase').get('value');    
+       searchshowcase(value,true,favouriteshowcase,(actualpageshowcase+1), function(){
+           loadnextpage = false;
+           stopLoading();
+       });      
+   }
+};
+
+createshowcasedetail = function(){
+    
+    //Elimino la vecchia visualizzazione
+    detailshowcase = registry.byId("showcasedetail");
+    
+    //Elimino il vecchio panello
+    if( registry.byId("paneshowcasedetail")){
+        registry.byId("paneshowcasedetail").destroyRecursive(false);
+    }
+    
+    if(actualobject){
+        showcase = actualobject; 
+    }else{
+        showcase = actualshowcase; 
+    }
+    
+    //Creo il pannello
+    pane = new Pane({id:"paneshowcasedetail"});
+    msgdate = "";
+    if(showcase.ragSoc){
+        msgdate += showcase.ragSoc;
+    }
+      
+    var msgBox = domConstruct.create("div", {class: "innerPaneDetail", innerHTML:msgdate}, pane.domNode);    
+    detailshowcase.addChild(pane,0);  
+        
+    // Visualizzo la descrizione dell'offerta
+    if( registry.byId("paneshowcasedetailhtml")){
+        registry.byId("paneshowcasedetailhtml").destroyRecursive(false);
+    } 
+    //Creo il pannello
+    panehtml = new Pane({id:"paneshowcasedetailhtml"});
+    var msgBoxhtml = domConstruct.create("div", {class: "innerPaneDetail", innerHTML:showcase.description}, panehtml.domNode);   
+    
+    
+    detailshowcase.addChild(panehtml);
+    
+    objectId = showcase.objectId;
+    if(!objectId){
+        objectId = showcase.merchantId;
+    }
+    
+    //Recupero le immagini dell'offerta
+    getShowcaseImages(request,objectId,function(images){         
+        var imgs = new Array();
+        for(i=0;i<images.length;i++) {
+            var srcimage = images[i].fullPathName;
+            var obj = new Object();
+            obj.src = srcimage;  
+            imgs.push(obj);                     
+        }
+        storeshowcaseimage.setData(imgs);
+        registry.byId("carouselshowcaseimage").refresh();
+    });
+};
+
+
+ opensearchsshowcase = function(){        
+        var type = domStyle.get('filterBoxShowcaseDiv', 'display');
+        if(type=='none'){
+            domStyle.set('filterBoxShowcaseDiv', 'display', 'block');
+        }else{
+            domStyle.set('filterBoxShowcaseDiv', 'display', 'none');
+            registry.byId('filterBoxShowcase').set('value',null);
+        }
+};
+
+
+merchantPreferred = function(preferred){
+
+    
+    setMerchantPreferred(request,actualmerchantid,preferred,function(){
+        
+        if(preferred){
+           domStyle.set('favouriteshowcasedetailbuttonko', 'display', 'none');
+           domStyle.set('favouriteshowcasedetailbuttonok', 'display', 'inline');
+        }else{
+           domStyle.set('favouriteshowcasedetailbuttonko', 'display', 'inline');
+           domStyle.set('favouriteshowcasedetailbuttonok', 'display', 'none');
+        }
+    });
+}
+
+
+
+/*****************************************************************************************************************/
 /*                                                QR-CODE
 /*****************************************************************************************************************/
 
@@ -1101,9 +1473,6 @@ scanqrcode = function() {
       }
    );   
 };
-
-
-
 
 
 /*****************************************************************************************************************/
@@ -1370,6 +1739,7 @@ scanqrcode = function() {
                 alert("ERROR:"+message+" - "+e);
             }
             stopLoading();
+            loadnextpage = false;
         }
         
         

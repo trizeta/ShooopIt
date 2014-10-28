@@ -135,7 +135,7 @@ setMerchantPreferredByQrCode = function(request,qrcode,callback){
 
 
 
-getEvent = function(request,json, filter,favourite, page, callback){
+getEvent = function(request,json, filter,merchantid,favourite, page, callback){
         
     jsonbean = new Object();
        
@@ -144,6 +144,13 @@ getEvent = function(request,json, filter,favourite, page, callback){
     
     //Setto il numero di righe per pagina
     jsonbean.numRows = rowforpage;      
+    
+    //Setto il merchant
+    if(merchantid){
+        lst = new Array();
+        lst.push(merchantid);
+        jsonbean.merchantIds = lst;
+    }
     
     //Setto i preferiti
     if(favourite){
@@ -162,7 +169,7 @@ getEvent = function(request,json, filter,favourite, page, callback){
     }
     
     var datajson = json.stringify(jsonbean);
-    var urllogin = url+"FacadeClient/getEventFilter";
+    var urllogin = url+"FacadeClient/getEventsFilter";
     var promise = request.post(urllogin,{
     handleAs: "json",
     data: datajson,
@@ -235,7 +242,7 @@ getEventImages = function(request,eventId,callback){
 
 
 
-getMessage = function(request,json, filter,favourite, page, callback){
+getMessage = function(request,json, filter,merchantid,favourite, page, callback){
         
     jsonbean = new Object();
        
@@ -244,6 +251,13 @@ getMessage = function(request,json, filter,favourite, page, callback){
     
     //Setto il numero di righe per pagina
     jsonbean.numRows = rowforpage;      
+    
+    //Setto il merchant
+    if(merchantid){
+        lst = new Array();
+        lst.push(merchantid);
+        jsonbean.merchantIds = lst;
+    }
     
     //Setto i preferiti
     if(favourite){
@@ -298,8 +312,8 @@ getMessage = function(request,json, filter,favourite, page, callback){
 
 
 
-getOffer = function(request,json, filter,favourite, page, callback){
-        
+getOffer = function(request,json, filter,merchantid,favourite, page, callback){
+    
     jsonbean = new Object();
        
     //Setto il device ID
@@ -307,6 +321,13 @@ getOffer = function(request,json, filter,favourite, page, callback){
     
     //Setto il numero di righe per pagina
     jsonbean.numRows = rowforpage;      
+    
+    //Setto il merchant
+    if(merchantid){
+        lst = new Array();
+        lst.push(merchantid);
+        jsonbean.merchantIds = lst;
+    }
     
     //Setto i preferiti
     if(favourite){
@@ -325,7 +346,7 @@ getOffer = function(request,json, filter,favourite, page, callback){
     }
     
     var datajson = json.stringify(jsonbean);
-    var urllogin = url+"FacadeClient/getOfferFilter";
+    var urllogin = url+"FacadeClient/getOffersFilter";
     var promise = request.post(urllogin,{
     handleAs: "json",
     data: datajson,
@@ -360,9 +381,209 @@ getOffer = function(request,json, filter,favourite, page, callback){
 };
 
 
+getShowcase = function(request,json, filter,favourite, page, callback){
+        
+    jsonbean = new Object();
+       
+    //Setto il device ID
+    jsonbean.deviceId = deviceID;
+    
+    //Setto il numero di righe per pagina
+    jsonbean.numRows = rowforpage;      
+    
+    //Setto i preferiti
+    if(favourite){
+        jsonbean.star = favourite;
+    }
+    
+    //Righe di partenza
+    startrow = 0;
+    if(page>1){
+        startrow = (page-1)*rowforpage;
+    }    
+    jsonbean.startRow = startrow;
+    
+    if(filter){
+        jsonbean.filter = filter;
+    }
+    
+    var datajson = json.stringify(jsonbean);
+    var urllogin = url+"FacadeClient/getMerchantsFilter";
+    var promise = request.post(urllogin,{
+    handleAs: "json",
+    data: datajson,
+    headers: {
+            "X-Requested-With": null,
+            "Content-Type":"application/json"                        
+            }           
+    }); 
+    
+    promise.response.then(
+        function(response) {
+            //Controllo messaggi di errore
+            var message = response.data.messageList;
+            error = false;
+            if(message && message.length>0){
+                if(message[0]=='IROK'){
+                    error = false;
+                }else{
+                    errorlog(message[0]);
+                }
+            }
+                    
+            //Recupeoro i dati delle news
+            if(!error){
+                var showcases = response.data.objectList;
+                callback(showcases);           
+            }            
+        },
+        function(error) {
+            errorlog("Errore Recupero Vetrine",error);            
+        });
+};
 
 
 
+getShowcaseImages = function(request,eventId,callback){
+    
+    var serviceurl = url+"FacadeClient/getShowcaseImages?deviceId="+deviceID+"&eventId="+eventId;
+    var promise = request.post(serviceurl,{
+    handleAs: "json",
+    headers: {
+            "X-Requested-With": null,
+            "Content-Type":"application/json"                        
+            }           
+    }); 
+    
+    promise.response.then(
+        function(response) {
+            //Controllo messaggi di errore
+            var message = response.data.messageList;
+            error = false;
+            if(message && message.length>0){
+                if(message[0]=='IROK'){
+                    error = false;
+                }else{
+                    errorlog(message[0]);
+                }
+            }
+                    
+            //Recupeoro i dati delle immagini
+            if(!error){
+                var images = response.data.objectList;
+                callback(images);           
+            }
+            
+        },
+        function(error) {
+            errorlog("Errore Recupero Immagini",error);            
+        });   
+};
 
+
+/* Recupero le immagini delle offerte */
+isShowcasePreferred = function(request,merchantid,callback){
+    
+    var urlservice = url+"FacadeClient/isMerchantsPreferred?deviceId="+deviceID+"&merchantId="+merchantid;
+    var promise = request.post(urlservice,{
+    handleAs: "json",
+    headers: {
+            "X-Requested-With": null,
+            "Content-Type":"application/json"                        
+            }           
+    }); 
+    
+    promise.response.then(
+        function(response) {
+            //Controllo messaggi di errore
+            var message = response.data.messageList;
+            error = false;
+            if(message && message.length>0){
+                if(message[0]=='IROK'){
+                    error = false;
+                }else{
+                    errorlog(message[0]);
+                }
+            }
+                    
+            //Recupeoro i dati delle immagini
+            if(!error){
+                var datas = response.data.objectList;
+                callback(datas[0]);           
+            }
+            
+        },
+        function(error) {
+            errorlog("Errore Recupero Preferenza",error);            
+        });   
+};
+
+
+/* Salvo sulle preferenze */
+setMerchantPreferred = function(request,mercantId,preferred,callback){
+
+    var urlservice = url+"FacadeClient/setMerchantPreferred?deviceId="+deviceID+"&preferred="+preferred+"&merchantId="+mercantId;
+    var promise = request.post(urlservice,{
+    handleAs: "json",
+    headers: {
+            "X-Requested-With": null,
+            "Content-Type":"application/json"                        
+            }           
+    }); 
+    
+    promise.response.then(
+        function(response) {
+            //Controllo messaggi di errore
+            var message = response.data.messageList;
+            error = false;
+            if(message && message.length>0){
+                if(message[0]=='IROK'){
+                    error = false;
+                }else{
+                    errorlog(message[0]);
+                }
+            }                    
+            if(!error){
+                callback();           
+            }            
+        },
+        function(error) {
+            errorlog("Errore Salvataggio Preferenza",error);            
+        });
+};
+
+
+/* Salvo il device info */
+setDeviceInfo = function(request,brand,model,opsystem,opversion,callback){
+
+    var urlservice = url+"FacadeClient/saveDeviceInfo?deviceId="+deviceID+"&brand="+brand+"&model="+model+"&opsystem="+opsystem+"&opversion="+opversion;
+    var promise = request.post(urlservice,{
+    handleAs: "json",
+    headers: {
+            "X-Requested-With": null,
+            "Content-Type":"application/json"                        
+            }           
+    }); 
+    
+    promise.response.then(
+        function(response) {
+            //Controllo messaggi di errore
+            var message = response.data.messageList;
+            error = false;
+            if(message && message.length>0){
+                if(message[0]=='IROK'){
+                    error = false;
+                }else{
+                    errorlog(message[0]);
+                }
+            }                    
+            if(!error){
+                callback();           
+            }            
+        },
+        function(error) {
+            errorlog("Errore Salvataggio Preferenza",error);            
+        });
+};
 
 
