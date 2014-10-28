@@ -53,6 +53,9 @@ actualmerchantid = null;
 //Flag di caricamento pagina
 loadnextpage = false;
 
+//PushNotification
+pushNotification;
+
 
 /* Configurazione Iniziale */
 var dojoConfig={
@@ -425,11 +428,17 @@ require([
             });
                         
             //TODO DA COMMENTARE PER NATIVA
-            onDeviceReady(); 
+            //onDeviceReady(); 
 	    });
 		
         function onDeviceReady() {
             
+            //Attivo il push notification
+            try{
+                pushNotification = window.plugins.pushNotification;
+            }catch(e){
+            
+            }
             try{
                 //Recupero id del dispositivo
                 deviceID = device.uuid;
