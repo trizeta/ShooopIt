@@ -454,10 +454,12 @@ require([
                 opsystem = device.platform;
                 opversion = device.version;               
                 setDeviceInfo(request,brand,model,opsystem,opversion,null,function(devicebean){
-                    
                     if(!devicebean.tokenPushMessage){
                         registerdevice();
-                    }                    
+                    }else if(device.platform == "Win32NT"){
+                        //In WP8 registro sempre il canale di comunicazione
+                         registerdevice();
+                    }
                     stopLoading();
                 });
             }catch(e) {
@@ -602,7 +604,8 @@ require([
         
         //Notifica WP8
         onNotificationWP8 = function(e) {
-            if (e.type == "toast" && e.jsonContent) {
+            alert(json.stringify(e));
+            /*if (e.type == "toast" && e.jsonContent) {
                 pushNotification.showToastNotification(successHandler, errorHandler,
                 {
                     "Title": e.jsonContent["wp:Text1"], "Subtitle": e.jsonContent["wp:Text2"], "NavigationUri": e.jsonContent["wp:Param"]
@@ -611,7 +614,7 @@ require([
 
             if (e.type == "raw" && e.jsonContent) {
                 alert(e.jsonContent.Body);
-            }
+            }*/
         }
         
         //WP8
@@ -656,6 +659,10 @@ require([
         onBackKeyDown = function(e){
            createConfirmation("Sei sicuro di uscire da Shooopit?", 
             function(){
+               //Effettuo deregistrazione url di push solo per WP8
+               if(device.platform == "Win32NT")
+                    pushNotification.unregister(successHandler, errorHandler);
+               }                             
                navigator.app.exitApp(); 
             }, 
             function(){
