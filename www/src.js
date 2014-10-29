@@ -496,8 +496,18 @@ require([
                 errorHandler,
                 {
                     "senderID":"1035210567078",
-                    "ecb":"onNotification"
+                    "ecb":"onNotificationAndroid"
                 });
+            } else if(device.platform == "Win32NT"){
+                pushNotification.register(
+                    channelHandler,
+                    errorHandler,
+                    {
+                        "channelName": deviceID,
+                        "ecb": "onNotificationWP8",
+                        "uccb": "channelHandler",
+                        "errcb": "jsonErrorHandler"
+                    });
             } else  {
                 pushNotification.register(
                 tokenHandler,
@@ -506,7 +516,7 @@ require([
                     "badge":"true",
                     "sound":"true",
                     "alert":"true",
-                    "ecb":"onNotificationAPN"
+                    "ecb":"onNotificationIOS"
                 });
             }     
         };
@@ -521,27 +531,28 @@ require([
             errorlog("ERROR",error);
         };
 
-        onNotificationAPN = function (event) {
+        //Notifiche IOS
+        onNotificationIOS = function (event) {
             if ( event.alert )
             {
                 navigator.notification.alert(event.alert);
             }
 
-            if ( event.sound )
+            if (event.sound)
             {
                 var snd = new Media(event.sound);
                 snd.play();
             }
 
-            if ( event.badge )
+            if (event.badge)
             {
                 pushNotification.setApplicationIconBadgeNumber(successHandler, errorHandler, event.badge);
             }
             stopLoading();
         };
         
-        //Notifica del messaggio
-        onNotification = function(e) {
+        //Notifica ANDROID
+        onNotificationAndroid = function(e) {
             stopLoading();
             switch(e.event){
                 case 'registered':
@@ -584,7 +595,35 @@ require([
             break;
           }
         };
+        
+        //Notifica WP8
+        onNotificationWP8 = function(e) {
 
+            if (e.type == "toast" && e.jsonContent) {
+                pushNotification.showToastNotification(successHandler, errorHandler,
+                {
+                    "Title": e.jsonContent["wp:Text1"], "Subtitle": e.jsonContent["wp:Text2"], "NavigationUri": e.jsonContent["wp:Param"]
+                });
+                }
+
+            if (e.type == "raw" && e.jsonContent) {
+                alert(e.jsonContent.Body);
+            }
+        }
+        
+        //WP8
+        channelHandler = function(e){
+            alert("OK:"+e);
+            stopLoading();
+        }
+        
+        //WP8
+        jsonErrorHandler = function(error){
+            alert(error.code+" - "+error.message);  
+            stopLoading();
+        }        
+
+        //Token IOS
         tokenHandler = function(result) {
              //Effettuo la registrazione del dispositivo
              deviceID = device.uuid;
