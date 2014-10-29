@@ -598,13 +598,12 @@ require([
         
         //Notifica WP8
         onNotificationWP8 = function(e) {
-
             if (e.type == "toast" && e.jsonContent) {
                 pushNotification.showToastNotification(successHandler, errorHandler,
                 {
                     "Title": e.jsonContent["wp:Text1"], "Subtitle": e.jsonContent["wp:Text2"], "NavigationUri": e.jsonContent["wp:Param"]
                 });
-                }
+            }
 
             if (e.type == "raw" && e.jsonContent) {
                 alert(e.jsonContent.Body);
@@ -613,7 +612,7 @@ require([
         
         //WP8
         channelHandler = function(e){
-            alert("OK:"+e);
+            alert(json.stringify(e));
             stopLoading();
         }
         
