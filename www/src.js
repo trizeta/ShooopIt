@@ -435,66 +435,31 @@ require([
             
             //Attivo il push notification
             try{
-                pushNotification = window.plugins.pushNotification;
-                
-                if ( device.platform == 'android' || device.platform == 'Android' || device.platform == "amazon-fireos" ){
-                    pushNotification.register(
-                    successHandler,
-                    errorHandler,
-                    {
-                        "senderID":"1035210567078",
-                        "ecb":"onNotification"
-                    });
-                } else if ( device.platform == 'blackberry10'){
-                    pushNotification.register(
-                    successHandler,
-                    errorHandler,
-                    {
-                        invokeTargetId : "replace_with_invoke_target_id",
-                        appId: "replace_with_app_id",
-                        ppgUrl:"replace_with_ppg_url", //remove for BES pushes
-                        ecb: "pushNotificationHandler",
-                        simChangeCallback: replace_with_simChange_callback,
-                        pushTransportReadyCallback: replace_with_pushTransportReady_callback,
-                        launchApplicationOnPush: true
-                    });
-                } else {
-                    pushNotification.register(
-                    tokenHandler,
-                    errorHandler,
-                    {
-                        "badge":"true",
-                        "sound":"true",
-                        "alert":"true",
-                        "ecb":"onNotificationAPN"
-                    });
-                }
+                pushNotification = window.plugins.pushNotification;             
             }catch(e){
                 errorlog("ERROR PUSH NOTIFICATION!!!",e);
             }
-            try{
-                //Recupero id del dispositivo
-                deviceID = device.uuid;
-            }catch(e) {
-                deviceID = 'demo';
-            } 
             
-             //Setto il deviceinfo
+            //Setto il deviceinfo
             try{
                 //Recupero id del dispositivo
                 deviceID = device.uuid;
                 startLoading();                
-                brand = null;
-                model = device.name;
+                brand = '';
+                model = device.model;
                 opsystem = device.platform;
                 opversion = device.version;               
-                setDeviceInfo(request,brand,model,opsystem,opversion,function(){
+                setDeviceInfo(request,brand,model,opsystem,opversion,null,function(devicebean){
+                    
+                    if(!devicebean.tokenPushMessage){
+                        registerdevice();
+                    }                    
                     stopLoading();
                 });
             }catch(e) {
                //Non faccio nulla e non salvo le preferenze
+                deviceID = 'demo';
             } 
-            
             
             try {                
                 //Inizializzo imgcache
@@ -518,14 +483,42 @@ require([
            
         };
 
-        // result contains any message sent from the plugin call
-        function successHandler (result) {
-            alert('result = ' + result);
+/****************************************************************************************************************
+*                                   PUSH NOTIFICATION
+****************************************************************************************************************/
+        
+
+        registerdevice = function() {
+            startLoading();
+            if (device.platform == 'android' || device.platform == 'Android'){
+                pushNotification.register(
+                successHandler,
+                errorHandler,
+                {
+                    "senderID":"1035210567078",
+                    "ecb":"onNotification"
+                });
+            } else  {
+                pushNotification.register(
+                tokenHandler,
+                errorHandler,
+                {
+                    "badge":"true",
+                    "sound":"true",
+                    "alert":"true",
+                    "ecb":"onNotificationAPN"
+                });
+            }     
         };
 
+        //result contains any message sent from the plugin call
+        successHandler = function(result) {
+            //Non fa nulla resituisce solo OK - KO
+            stopLoading();
+        };
 
-        function errorHandler (error) {
-            alert('error = ' + error);
+        errorHandler = function(error) {
+            errorlog("ERROR",error);
         };
 
         onNotificationAPN = function (event) {
@@ -544,54 +537,42 @@ require([
             {
                 pushNotification.setApplicationIconBadgeNumber(successHandler, errorHandler, event.badge);
             }
+            stopLoading();
         };
         
+        //Notifica del messaggio
         onNotification = function(e) {
-            alert('<li>EVENT -> RECEIVED:' + e.event + '</li>');
+            stopLoading();
+            switch(e.event){
+                case 'registered':
+                    if ( e.regid.length > 0 ) {
+                        //Effettuo la registrazione del dispositivo
+                        deviceID = device.uuid;
+                        startLoading();                
+                        brand = '';
+                        model = device.model;
+                        opsystem = device.platform;
+                        opversion = device.version;               
+                        setDeviceInfo(request,brand,model,opsystem,opversion,e.regid,function(){
+                            stopLoading();
+                        });                   
+                    }
+                break;
 
-            switch( e.event )
-            {
-            case 'registered':
-                if ( e.regid.length > 0 )
-                {
-                    alert('<li>REGISTERED -> REGID:' + e.regid + "</li>");
-                    // Your GCM push server needs to know the regID before it can push to this device
-                    // here is where you might want to send it the regID for later use.
-                    console.log("regID = " + e.regid);
-                }
-            break;
-
-            case 'message':
-                // if this flag is set, this notification happened while we were in the foreground.
-                // you might want to play a sound to get the user's attention, throw up a dialog, etc.
-                if ( e.foreground )
-                {
-                    alert('<li>--INLINE NOTIFICATION--' + '</li>');
-
-                    // on Android soundname is outside the payload.
-                    // On Amazon FireOS all custom attributes are contained within payload
-                    var soundfile = e.soundname || e.payload.sound;
-                    // if the notification contains a soundname, play it.
-                    var my_media = new Media("/android_asset/www/"+ soundfile);
-                    my_media.play();
-                }
+                case 'message':
+                    if ( e.foreground ) {
+                        //Applicazione è visibile                
+                    }
                 else
                 {  // otherwise we were launched because the user touched a notification in the notification tray.
-                    if ( e.coldstart )
-                    {
+                    if ( e.coldstart ) {
                         alert('<li>--COLDSTART NOTIFICATION--' + '</li>');
-                    }
-                    else
-                    {
+                    } else {
                         alert('<li>--BACKGROUND NOTIFICATION--' + '</li>');
                     }
                 }
-
                alert('<li>MESSAGE -> MSG: ' + e.payload.message + '</li>');
-                   //Only works for GCM
                alert('<li>MESSAGE -> MSGCNT: ' + e.payload.msgcnt + '</li>');
-               //Only works on Amazon Fire OS
-               alert('<li>MESSAGE -> TIME: ' + e.payload.timeStamp + '</li>');
             break;
 
             case 'error':
@@ -604,8 +585,20 @@ require([
           }
         };
 
+        tokenHandler = function(result) {
+             //Effettuo la registrazione del dispositivo
+             deviceID = device.uuid;
+             startLoading();                
+             brand = '';
+             model = device.model;
+             opsystem = device.platform;
+             opversion = device.version;               
+             setDeviceInfo(request,brand,model,opsystem,opversion,result,function(){
+                   stopLoading();
+             });  
+        };
 
-        /***************************************************************************************************************************/
+/***************************************************************************************************************************/
 
     
         onBackKeyDown = function(e){

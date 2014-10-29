@@ -554,9 +554,14 @@ setMerchantPreferred = function(request,mercantId,preferred,callback){
 
 
 /* Salvo il device info */
-setDeviceInfo = function(request,brand,model,opsystem,opversion,callback){
+setDeviceInfo = function(request,brand,model,opsystem,opversion,token,callback){
 
     var urlservice = url+"FacadeClient/saveDeviceInfo?deviceId="+deviceID+"&brand="+brand+"&model="+model+"&opsystem="+opsystem+"&opversion="+opversion;
+    
+    if(token){
+      urlservice += "&token="+token;  
+    }
+    
     var promise = request.post(urlservice,{
     handleAs: "json",
     headers: {
@@ -578,7 +583,8 @@ setDeviceInfo = function(request,brand,model,opsystem,opversion,callback){
                 }
             }                    
             if(!error){
-                callback();           
+                var datas = response.data.objectList;
+                callback(datas[0]);           
             }            
         },
         function(error) {
