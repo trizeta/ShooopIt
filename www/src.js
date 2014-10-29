@@ -660,7 +660,7 @@ require([
            createConfirmation("Sei sicuro di uscire da Shooopit?", 
             function(){
                //Effettuo deregistrazione url di push solo per WP8
-               if(device.platform == "Win32NT")
+               if(device.platform == "Win32NT"){
                     pushNotification.unregister(successHandler, errorHandler);
                }                             
                navigator.app.exitApp(); 
