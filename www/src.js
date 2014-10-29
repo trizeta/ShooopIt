@@ -507,7 +507,7 @@ require([
                     channelHandler,
                     errorHandler,
                     {
-                        "channelName": channelName,
+                        "channelName": deviceID,
                         "ecb": "onNotificationWP8",
                         "uccb": "channelHandler",
                         "errcb": "jsonErrorHandler"
@@ -616,8 +616,18 @@ require([
         
         //WP8
         channelHandler = function(e){
-            alert(json.stringify(e));
-            stopLoading();
+            if ( e.uri.length > 0 ) {
+                   //Effettuo la registrazione del dispositivo
+                   deviceID = device.uuid;
+                   startLoading();                
+                   brand = '';
+                   model = device.model;
+                   opsystem = device.platform;
+                   opversion = device.version;               
+                   setDeviceInfo(request,brand,model,opsystem,opversion,e.uri,function(){
+                        stopLoading();
+                   });                   
+         }       
         }
         
         //WP8
