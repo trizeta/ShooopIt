@@ -56,6 +56,10 @@ loadnextpage = false;
 //PushNotification
 pushNotification = null;
 
+//ChannelName WP8
+channelName = '';
+
+
 
 /* Configurazione Iniziale */
 var dojoConfig={
@@ -503,7 +507,7 @@ require([
                     channelHandler,
                     errorHandler,
                     {
-                        "channelName": deviceID,
+                        "channelName": channelName,
                         "ecb": "onNotificationWP8",
                         "uccb": "channelHandler",
                         "errcb": "jsonErrorHandler"
