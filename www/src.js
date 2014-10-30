@@ -514,6 +514,13 @@ require([
                 errorlog("ERROR LOAD NEWS",e);
             } 
             
+            //FIX STATUS BAR IOS
+            try{
+                StatusBar.overlaysWebView(false);
+            }catch(e){
+                
+            } 
+            
             try{                  
                 domStyle.set('sfondo','z-index',-100);                
                 //Nascondo lo splah screen
