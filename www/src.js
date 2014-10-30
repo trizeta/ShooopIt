@@ -211,8 +211,16 @@ require([
                 if(!children || children.length == 0){
                     startLoading();
                     searchoffer(null,false,favouriteoffer,1,function(){
+                        registry.byId("tabOfferbutton").set("badge",undefined);
                         stopLoading();
                     });
+                }else if(registry.byId("tabOfferbutton").get("badge")){
+                    startLoading();
+                    searchoffer(null,false,favouriteoffer,1,function(){
+                        //Porto badge a 0
+                        registry.byId("tabOfferbutton").set("badge",undefined);
+                        stopLoading();
+                    });                  
                 }
             });
                       
@@ -279,11 +287,17 @@ require([
                 if(!children || children.length == 0){
                     startLoading();
                     searchmessage(null,false,favouritemessage,1,function(){
+                        registry.byId("tabMessagebutton").set("badge",undefined);
                         stopLoading();
                     });
-                }
-                
-                
+                }else if(registry.byId("tabMessagebutton").get("badge")){
+                    startLoading();
+                    searchmessage(null,false,favouritemessage,1,function(){
+                        //Porto badge a 0
+                        registry.byId("tabMessagebutton").set("badge",undefined);
+                        stopLoading();
+                    });                  
+                }              
             });
             
             dojo.connect(registry.byId("tabMessage"), "onBeforeTransitionOut", null, function(){
@@ -324,6 +338,13 @@ require([
                     searchevent(null,false,favouriteevent,1,function(){
                         stopLoading();
                     });
+                }else if(registry.byId("tabEventbutton").get("badge")){
+                    startLoading();
+                    searchevent(null,false,favouriteevent,1,function(){
+                        //Porto badge a 0
+                        registry.byId("tabEventbutton").set("badge",undefined);
+                        stopLoading();
+                    });                  
                 }              
             });
             
@@ -433,7 +454,7 @@ require([
                         
             //TODO DA COMMENTARE PER NATIVA
             //onDeviceReady(); 
-	    });
+       });
 		
         function onDeviceReady() {
             
@@ -454,6 +475,21 @@ require([
                 opsystem = device.platform;
                 opversion = device.version;               
                 setDeviceInfo(request,brand,model,opsystem,opversion,null,function(devicebean){
+                    
+                    //Setto i badge di news, eventi, messaggi, offerte
+                    if(devicebean.newsnew && devicebean.newsnew>0){
+                        registry.byId("tabNewsbutton").set("badge",devicebean.newsnew);
+                    }
+                    if(devicebean.eventnew && devicebean.eventnew>0){
+                        registry.byId("tabEventbutton").set("badge",devicebean.eventnew);
+                    }
+                    if(devicebean.messagenew && devicebean.messagenew>0){
+                        registry.byId("tabMessagebutton").set("badge",devicebean.messagenew);
+                    }
+                    if(devicebean.offernew && devicebean.offernew>0){
+                        registry.byId("tabOfferbutton").set("badge",devicebean.offernew);
+                    }
+
                     if(!devicebean.tokenPushMessage){
                         registerdevice();
                     }else if(device.platform == "Win32NT"){
@@ -478,7 +514,8 @@ require([
                 errorlog("ERROR LOAD NEWS",e);
             } 
             
-            try{   
+            try{                  
+                domStyle.set('sfondo','z-index',-100);                
                 //Nascondo lo splah screen
                 navigator.splashscreen.hide();                      
             } catch(e) {
@@ -493,6 +530,61 @@ require([
 *                                   PUSH NOTIFICATION
 ****************************************************************************************************************/
         
+        setBadgeInfo = function(){
+            //Setto il deviceinfo
+            try{
+                //Recupero id del dispositivo
+                deviceID = device.uuid;
+                brand = '';
+                model = device.model;
+                opsystem = device.platform;
+                opversion = device.version;               
+                setDeviceInfo(request,brand,model,opsystem,opversion,null,function(devicebean){
+                    
+                    //Setto i badge di news, eventi, messaggi, offerte
+                    if(devicebean.newsnew && devicebean.newsnew>0){                        
+                        var badge1 = registry.byId("tabNewsbutton").get("badge");
+                        if(badge1){
+                            registry.byId("tabNewsbutton").set("badge",parseInt(badge1)+devicebean.newsnew);
+                        }else{
+                            registry.byId("tabNewsbutton").set("badge",devicebean.newsnew);
+                        }                      
+                    }
+                    
+                    if(devicebean.eventnew && devicebean.eventnew>0){
+                        var badge2 = registry.byId("tabEventbutton").get("badge");
+                        if(badge2){
+                             registry.byId("tabEventbutton").set("badge",parseInt(badge2)+devicebean.eventnew);
+                        }else{
+                             registry.byId("tabEventbutton").set("badge",devicebean.eventnew);
+                        }                      
+                    }
+                    
+                    if(devicebean.messagenew && devicebean.messagenew>0){
+                        var badge3 = registry.byId("tabMessagebutton").get("badge");
+                        if(badge3){
+                             registry.byId("tabMessagebutton").set("badge",parseInt(badge3)+devicebean.messagenew);
+                        }else{
+                             registry.byId("tabMessagebutton").set("badge",devicebean.messagenew);
+                        }
+                    }
+                    
+                    if(devicebean.offernew && devicebean.offernew>0){
+                        var badge4 = registry.byId("tabOfferbutton").get("badge");
+                        if(badge4){
+                             registry.byId("tabOfferbutton").set("badge",parseInt(badge4)+devicebean.offernew);
+                        }else{
+                             registry.byId("tabOfferbutton").set("badge",devicebean.offernew);
+                        }
+                    } 
+                });
+            }catch(e) {
+               //Non faccio nulla e non salvo le preferenze
+                deviceID = 'demo';
+            }         
+        };
+
+
 
         registerdevice = function() {
             startLoading();
@@ -539,22 +631,7 @@ require([
 
         //Notifiche IOS
         onNotificationIOS = function (event) {
-            if ( event.alert )
-            {
-                navigator.notification.alert(event.alert);
-            }
-
-            if (event.sound)
-            {
-                var snd = new Media(event.sound);
-                snd.play();
-            }
-
-            if (event.badge)
-            {
-                pushNotification.setApplicationIconBadgeNumber(successHandler, errorHandler, event.badge);
-            }
-            stopLoading();
+            setBadgeInfo();            
         };
         
         //Notifica ANDROID
@@ -577,44 +654,25 @@ require([
                 break;
 
                 case 'message':
-                    if ( e.foreground ) {
-                        //Applicazione è visibile                
+                    if (e.foreground) {
+                        //Applicazione è visibile 
+                        setBadgeInfo();
                     }
-                else
-                {  // otherwise we were launched because the user touched a notification in the notification tray.
-                    if ( e.coldstart ) {
-                        alert('<li>--COLDSTART NOTIFICATION--' + '</li>');
-                    } else {
-                        alert('<li>--BACKGROUND NOTIFICATION--' + '</li>');
-                    }
-                }
-               alert('<li>MESSAGE -> MSG: ' + e.payload.message + '</li>');
-               alert('<li>MESSAGE -> MSGCNT: ' + e.payload.msgcnt + '</li>');
-            break;
+                break;
 
             case 'error':
-                alert('<li>ERROR -> MSG:' + e.msg + '</li>');
+                errolog("ERRORE NOTIFICA ",e.msg);
             break;
 
             default:
-                alert('<li>EVENT -> Unknown, an event was received and we do not know what it is</li>');
+                //Non faccio nulla
             break;
           }
         };
         
         //Notifica WP8
         onNotificationWP8 = function(e) {
-            alert(json.stringify(e));
-            /*if (e.type == "toast" && e.jsonContent) {
-                pushNotification.showToastNotification(successHandler, errorHandler,
-                {
-                    "Title": e.jsonContent["wp:Text1"], "Subtitle": e.jsonContent["wp:Text2"], "NavigationUri": e.jsonContent["wp:Param"]
-                });
-            }
-
-            if (e.type == "raw" && e.jsonContent) {
-                alert(e.jsonContent.Body);
-            }*/
+            setBadgeInfo();
         }
         
         //WP8
@@ -694,7 +752,9 @@ require([
             searchnews(value,false,false,1,function(){
                 registry.byId("tabNews").slideTo({y:0}, 0.3, "ease-out");
                 prognews.stop();
-                dom.byId("iconnews").style.display = "inline"; 
+                dom.byId("iconnews").style.display = "inline";
+                registry.byId("tabNewsbutton").set("badge",undefined);
+                stopLoading();
             });                      
          };
 
@@ -723,6 +783,8 @@ require([
                 registry.byId("tabOffer").slideTo({y:0}, 0.3, "ease-out");
                 progoffer.stop();
                 dom.byId("iconoffer").style.display = "inline"; 
+                registry.byId("tabOfferbutton").set("badge",undefined);
+                stopLoading();
             });                      
          };
 
@@ -751,6 +813,8 @@ require([
                 registry.byId("tabEvent").slideTo({y:0}, 0.3, "ease-out");
                 progevent.stop();
                 dom.byId("iconevent").style.display = "inline"; 
+                registry.byId("tabEventbutton").set("badge",undefined);
+                stopLoading();
             });                      
          };
 
@@ -780,6 +844,8 @@ require([
                 registry.byId("tabMessage").slideTo({y:0}, 0.3, "ease-out");
                 progmessage.stop();
                 dom.byId("iconmessage").style.display = "inline"; 
+                registry.byId("tabMessagebutton").set("badge",undefined);
+                stopLoading();
             });                      
          };
 

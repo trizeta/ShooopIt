@@ -11,16 +11,26 @@
         <!-- link rel="stylesheet" href="script/dijit/themes/claro/claro.css" /-->
         <link rel="stylesheet" href="css/demo.css" />
         <link rel="stylesheet" href="css/ionicons.css" />
-                
+        
+        <link rel="stylesheet" href="script/dojox/mobile/themes/common/domButtons/DomButtonRedBadge.css" rel="stylesheet"/>
+                    
         <style>
             #pull {
               position: absolute;              
             }  
-                        
+               
+            .mblTabBarButtonLabel{
+                font-size: 18px;
+            }
+            
+            .mblCarouselHeaderBar {
+                background-color: #70c2e3;
+            }
+            
             .mblTabBarTabBar{  
-                background-image: url('img/footer.png');
-                background-repeat: repeat-x;
-                background-color: white;
+                background-image: none;
+                /*background-repeat: repeat-x;*/
+                background-color: #70c2e3;
                 border-top:2px solid white;
                 height: 47px;
             }
@@ -30,8 +40,8 @@
             }
             
             .mblHeading{
-                background-image: url('img/header.png');
-                background-color: white;
+                background-image: none;
+                background-color: #70c2e3;
                 background-repeat: repeat-x;
                 
             }
@@ -41,12 +51,12 @@
                 background-color: #70c2e3;
             }
             
+            
             .mblTabBarButtonSelected {
-                background-color: red;
+                background-color: #f58040;
                 background-image: none;
             }
-            
-            
+                    
             /* inline custom DOM Button */
             .mblDomButtonMyRedButton_0 {
                 position: relative;
@@ -348,15 +358,12 @@
         <script type="text/javascript" src="src.js"></script>   
         
         
-        <style>
-            
-        
-        </style>
         
     </head>
     <body>
-        <img src="img/SfondoHome.png" style="width:100%;height:100%;z-index:-100;position:absolute;top:0;left:0" > </img>   
-               
+        
+        <img id="sfondo" src="img/SfondoHome.png" style="width:100%;height:100%;z-index:100;position:absolute;top:0;left:0" > </img>   
+        
         <!-- View di Dettaglio a Tab -->
         <div id="ViewApplication"  data-dojo-type="dojox.mobile.View" style="background-color:white;background-image:url('img/sfondoshoopit.png');background-repeat:repeat-x">
                     <!-- Header Tab -->    
@@ -538,15 +545,15 @@
         		
         </div>
 
-        <div id="imagedetail"  data-dojo-type="dojox.mobile.SimpleDialog"  data-dojo-props="closeButton:true"  style="background-color:white;width:92%;height:92%" > 	
+        <div id="imagedetail"  data-dojo-type="dojox.mobile.SimpleDialog"  data-dojo-props="closeButton:true"  style="background-color:white;width:90%;height:90%" > 	
             <img id="imgdetail" src="#" style="width:100%;height:auto;max-height:100%;z-index:-10;position:absolute;top:0;left:0"></img> 
         </div>
         
 
         <div id="loading"  data-dojo-type="dojox.mobile.SimpleDialog" style="background-color:transparent;width:100px;height:100px;border:none">
-              <div data-dojo-type="dojox.mobile.ProgressIndicator" data-dojo-props="center:true,size:100" style="top:-100px" startSpinning="true" colors="['#E60012','#F39800','#FFF100','#8FC31F','#009944','#009E96',
-              '#00A0E9','#0068B7','#1D2088','#920783','#E4007F','#E5004F']"></div>      
+              <img src="img/logo36.png"></img>
+            <label>Loading....</label>
         </div>
-  
+               
     </body>
 </html>
