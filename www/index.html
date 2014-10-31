@@ -239,7 +239,10 @@
             .mblListItem{
                 border-bottom:1px solid #70c2e3;
             }
-           
+                       
+            .icon-mess-color {
+                color:#70c2e3;
+            }
             
             .notviewlabel{
                 font-size: 0.6em;
@@ -269,32 +272,51 @@
                 transform: rotate(180deg);             /* W3C complaint browsers */
             }
             
-            .innerPane{
+            .innerPane {
                border:1px solid #70c2e3;
-               width:90%;
+               width:95%;
                text-align:center; 
                margin: 0 auto;
-               margin-top:5px;
-               min-height:200px;    
-                background-color: white;
+               margin-top:10px;
+               min-height:100px;    
+               background-color: white;
+               border-radius: 15px;
             } 
-            
-            
-            .innerPaneDetail{
+                        
+            .innerPaneDetail {
                border:1px solid #70c2e3;
                width:100%;
                text-align:left; 
                margin: 0 auto;               
                height:auto;
                background-color: white;
-            }
+               padding:5px;
+            }       
             
-            
-            .innerPaneImg{
+            .innerPaneImg {
                 max-height: 90%;
                 max-width: 90%;
                 height:90%;
                 width:90%;
+                margin-left: auto;
+                margin-right: auto;
+                display: block;
+                padding-top: 5px;
+            }
+            
+            .innerPane span {
+                margin-top: 2px;
+                padding: 5px;
+                /*border-top: 1px solid #70c2e3;*/
+                display: block;
+            }
+            
+            .mblGridLayout{
+                -moz-column-count:2;
+                -webkit-column-count:2;
+                column-count:2; 
+                
+                
             }
             
             /*
@@ -431,10 +453,10 @@
                              <div id="msg1news"></div>
                         </div>
                         <div class="SearchBoxdiv" id="filterBoxNewsDiv">
-                           <input placeholder="Filtri" onchange="searchnewsfilter()" type="search" id="filterBoxNews" class="mblFilteredEdgeToEdgeListSearchBox">
+                           <input placeholder="Filtri" onchange="searchnewsfilter()" type="search" id="filterBoxNews" class="mblFilteredEdgeToEdgeListSearchBox"/>
                            
                         </div>
-                        <div id="gridnews" data-dojo-type="dojox.mobile.GridLayout" data-dojo-props='cols:2'>
+                        <div id="gridnews" data-dojo-type="dojox.mobile.GridLayout" data-dojo-props='cols:1'>
                         </div> 
                     </div>
     
@@ -446,10 +468,10 @@
                              <div id="msg1offer"></div>
                         </div>
                         <div class="SearchBoxdiv" id="filterBoxOfferDiv">
-                           <input data-dojo-type="dojox.mobile.SearchBox"  data-dojo-props="incremental:true, onChange:searchofferfilter"  type="search" id="filterBoxOffer" class="mblFilteredEdgeToEdgeListSearchBox">
-                           
+                            <input placeholder="Filtri" onchange="searchofferfilter()" type="search" id="filterBoxOffer" class="mblFilteredEdgeToEdgeListSearchBox"/>
+                                                     
                         </div>
-                        <div id="gridoffer" data-dojo-type="dojox.mobile.GridLayout" data-dojo-props='cols:2'>
+                        <div id="gridoffer" data-dojo-type="dojox.mobile.GridLayout" data-dojo-props='cols:1'>
                         </div> 
                     </div>
                     
@@ -461,10 +483,11 @@
                              <div id="msg1event"></div>
                         </div>
                         <div class="SearchBoxdiv" id="filterBoxEventDiv">
-                           <input data-dojo-type="dojox.mobile.SearchBox"  data-dojo-props="incremental:true, onChange:searcheventfilter"  type="search" id="filterBoxEvent" class="mblFilteredEdgeToEdgeListSearchBox">
+                           <input placeholder="Filtri" onchange="searcheventfilter()" type="search" id="filterBoxEvent" class="mblFilteredEdgeToEdgeListSearchBox"/>
+                         
                            
                         </div>
-                        <div id="gridevent" data-dojo-type="dojox.mobile.GridLayout" data-dojo-props='cols:2'>
+                        <div id="gridevent" data-dojo-type="dojox.mobile.GridLayout" data-dojo-props='cols:1'>
                         </div> 
                     </div>
                     
@@ -476,10 +499,11 @@
                              <div id="msg1message"></div>
                         </div>
                         <div class="SearchBoxdiv" id="filterBoxMessageDiv">
-                           <input data-dojo-type="dojox.mobile.SearchBox"  data-dojo-props="incremental:true, onChange:searchmessagefilter"  type="search" id="filterBoxMessage" class="mblFilteredEdgeToEdgeListSearchBox">
+                            <input placeholder="Filtri" onchange="searchmessagefilter()" type="search" id="filterBoxMessage" class="mblFilteredEdgeToEdgeListSearchBox"/>
+                          
                            
                         </div>
-                        <div id="gridmessage" data-dojo-type="dojox.mobile.GridLayout" data-dojo-props='cols:2'>
+                        <div id="gridmessage" data-dojo-type="dojox.mobile.GridLayout" data-dojo-props='cols:1'>
                         </div> 
                     </div>
                      
@@ -491,10 +515,11 @@
                              <div id="msg1showcase"></div>
                         </div>
                         <div class="SearchBoxdiv" id="filterBoxShowcaseDiv">
-                           <input data-dojo-type="dojox.mobile.SearchBox"  data-dojo-props="incremental:true, onChange:searchshowcasefilter"  type="search" id="filterBoxShowcase" class="mblFilteredEdgeToEdgeListSearchBox">
+                           <input placeholder="Filtri" onchange="searchshowcasefilter()" type="search" id="filterBoxShowcase" class="mblFilteredEdgeToEdgeListSearchBox"/>
+                          
                            
                         </div>
-                        <div id="gridshowcase" data-dojo-type="dojox.mobile.GridLayout" data-dojo-props='cols:2'>
+                        <div id="gridshowcase" data-dojo-type="dojox.mobile.GridLayout" data-dojo-props='cols:1'>
                         </div> 
                     </div>
     

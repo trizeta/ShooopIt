@@ -3,10 +3,9 @@
 */
 user = null;
 debug = false;
-url = "http://37.59.80.107/messaging/rest/";
-//url = "http://192.168.1.16:8080/messaging/rest/";
-
-urlimage = "http://37.59.80.107/images/";
+//url = "http://app.sh1.it/messaging/rest/";
+url = "http://192.168.30.121:8080/messaging/rest/";
+urlimage = "http://app.sh1.it/images/";
 
 //Variabile per il messaggio
 message = null;
@@ -259,6 +258,30 @@ require([
                 } else {
                     domStyle.set('favouritenewsbuttonok', 'display', 'inline');                
                 }
+                
+                
+                
+                var children = registry.byId('gridnews').getChildren();
+                if(!children || children.length == 0){
+                    startLoading();
+                    searchnews(null,false,favouritenews,1,function(){
+                        registry.byId("tabNewsbutton").set("badge",undefined);
+                        stopLoading();
+                    });
+                }else if(registry.byId("tabNewsbutton").get("badge")){
+                    startLoading();
+                    searchnews(null,false,favouritenews,1,function(){
+                        //Porto badge a 0
+                        registry.byId("tabNewsbutton").set("badge",undefined);
+                        stopLoading();
+                    });                  
+                }
+                
+                
+                
+                
+                
+                
             });
             
             dojo.connect(registry.byId("tabNews"), "onBeforeTransitionOut", null, function(){
@@ -506,9 +529,9 @@ require([
             try {                
                 //Inizializzo imgcache
                 ImgCache.init(function(){
-                    searchnews(null,false,false,1); 
+                    searchnews(null,false,favouritenews,1); 
                 }, function(){
-                    searchnews(null,false,false,1); 
+                    searchnews(null,false,favouritenews,1); 
                 });          
             } catch(e){
                 errorlog("ERROR LOAD NEWS",e);
@@ -730,8 +753,9 @@ require([
                }                             
                navigator.app.exitApp(); 
             }, 
-            function(){
-                //Non fa nulla               
+            function(dlg){
+               dlg.hide();
+               dlg.destroyRecursive(false);         
             }); 
         };
               
@@ -756,7 +780,7 @@ require([
 			prognews.start();
              
             var value = dom.byId('filterBoxNews').value;
-            searchnews(value,false,false,1,function(){
+            searchnews(value,false,favouritenews,1,function(){
                 registry.byId("tabNews").slideTo({y:0}, 0.3, "ease-out");
                 prognews.stop();
                 dom.byId("iconnews").style.display = "inline";
@@ -785,7 +809,7 @@ require([
 			dom.byId("progoffer").appendChild(progoffer.domNode);
 			progoffer.start();
                     
-            var value = registry.byId('filterBoxOffer').get('value');
+            var value = dom.byId('filterBoxOffer').value;
             searchoffer(value,false,favouriteoffer,1,function(){
                 registry.byId("tabOffer").slideTo({y:0}, 0.3, "ease-out");
                 progoffer.stop();
@@ -815,7 +839,7 @@ require([
 			dom.byId("progevent").appendChild(progevent.domNode);
 			progevent.start();
              
-            var value = registry.byId('filterBoxEvent').get('value');
+            var value = dom.byId('filterBoxEvent').value;
             searchevent(value,false,false,1,function(){
                 registry.byId("tabEvent").slideTo({y:0}, 0.3, "ease-out");
                 progevent.stop();
@@ -846,7 +870,7 @@ require([
 			dom.byId("progmessage").appendChild(progmessage.domNode);
 			progmessage.start();
              
-            var value = registry.byId('filterBoxMessage').get('value');
+            var value = dom.byId('filterBoxMessage').value;
             searchmessage(value,false,false,1,function(){
                 registry.byId("tabMessage").slideTo({y:0}, 0.3, "ease-out");
                 progmessage.stop();
@@ -875,9 +899,9 @@ require([
 			dom.byId("iconshowcase").style.display = "none";
 			dom.byId("msg1showcase").innerHTML = "Attendere...";
 			dom.byId("progshowcase").appendChild(progshowcase.domNode);
-			progevent.start();
+			progshowcase.start();
              
-            var value = registry.byId('filterBoxShowcase').get('value');
+            var value = dom.byId('filterBoxShowcase').value;
             searchshowcase(value,false,false,1,function(){
                 registry.byId("tabShowcase").slideTo({y:0}, 0.3, "ease-out");
                 progshowcase.stop();
@@ -926,7 +950,11 @@ searchnews = function(filter,append,favourite,page,callback){
                 }else if(object_type=='M'){
                     //Messaggi
                     if(news[i].description){
-                        html = news[i].description;
+                        if(news[i].description.length>25){
+                            html = news[i].description.substring(0,22)+"...";
+                        }else{
+                            html = news[i].description;
+                        }                      
                     }
                 }else if(object_type=='E'){
                     //Eventi
@@ -954,7 +982,13 @@ searchnews = function(filter,append,favourite,page,callback){
                             }
                         });   
                     }
+                    
+                    if(object_type=='M'){
+                        var iconBox = domConstruct.create("label", {class:'icon ion-email icon-mess-color', style:"font-size:60px"}, msgBox);
+                    }               
+                    
                     var labelBox = domConstruct.create("span", {innerHTML: html}, msgBox);
+                                    
                     gridnews.addChild(pane); 
                     pane.startup();
                 }                    
@@ -1108,7 +1142,7 @@ opendetailoffer = function(id) {
 
 
 favouritesearchoffer = function(favourite) {    
-    var value = registry.byId('filterBoxOffer').get('value');
+    var value = dom.byId('filterBoxOffer').value;
     favouriteoffer = favourite;
     if(favourite) {
     //Controllo lo stato dei preferiti
@@ -1136,7 +1170,7 @@ pagingOffer = function(e){
        //Calcolo il numero di pagina da visualizzare
        favouritesearchoffer(favouriteoffer);  
               
-       var value = registry.byId('filterBoxOffer').get('value');    
+       var value = dom.byId('filterBoxOffer').value;    
        searchoffer(value,true,favouriteoffer,(actualpageoffer+1), function(){
            loadnextpage = false;
            stopLoading();
@@ -1222,7 +1256,7 @@ createofferdetail = function(){
             domStyle.set('filterBoxOfferDiv', 'display', 'block');
         }else{
             domStyle.set('filterBoxOfferDiv', 'display', 'none');
-            registry.byId('filterBoxOffer').set('value',null);
+            dom.byId('filterBoxOffer').value = null;
         }
 };
 
@@ -1296,7 +1330,7 @@ opendetailevent = function(id) {
 
 
 favouritesearchevent = function(favourite) {  
-    var value = registry.byId('filterBoxEvent').get('value');
+    var value = dom.byId('filterBoxEvent').value;
     favouriteevent = favourite;
     if(favourite) {
     //Controllo lo stato dei preferiti
@@ -1324,7 +1358,7 @@ pagingEvent = function(e){
        //Calcolo il numero di pagina da visualizzare
        favouritesearchevent(favouriteevent);  
               
-       var value = registry.byId('filterBoxEvent').get('value');    
+       var value = dom.byId('filterBoxEvent').value;    
        searchevent(value,true,favouriteevent,(actualpageevent+1), function(){
            loadnextpage = false;
            stopLoading();
@@ -1403,7 +1437,7 @@ createeventdetail = function(){
             domStyle.set('filterBoxEventDiv', 'display', 'block');
         }else{
             domStyle.set('filterBoxEventDiv', 'display', 'none');
-            registry.byId('filterBoxEvent').set('value',null);
+            dom.byId('filterBoxEvent').value=null;
         }
 };
 
@@ -1435,11 +1469,20 @@ searchmessage = function(filter,append,favourite,page,callback){
                 var html = messages[i].description;
                                 
                 if(html){
+                    
+                    if(html.length>25){
+                       html = html.substring(0,22)+"...";
+                    }
+                                    
                     pane = new Pane();                                       
                     pane.set("bean",messages[i]);
                     pane.on("click",function(){opendetailmessage(this.id)});
                                         
                     var msgBox = domConstruct.create("div", {class: "innerPane"}, pane.domNode);
+                    
+                     var iconBox = domConstruct.create("label", {class:'icon ion-email icon-mess-color', style:"font-size:60px"}, msgBox);
+                    
+                    
                     var labelBox = domConstruct.create("span", {innerHTML: html}, msgBox);
                     gridmessage.addChild(pane); 
                     pane.startup();
@@ -1463,7 +1506,7 @@ opendetailmessage = function(id) {
 
 
 favouritesearchmessage = function(favourite) {    
-    var value = registry.byId('filterBoxEvent').get('value');
+    var value = dom.byId('filterBoxMessage').value;
     favouritemessage = favourite;
     if(favourite) {
     //Controllo lo stato dei preferiti
@@ -1491,7 +1534,7 @@ pagingMessage = function(e){
        //Calcolo il numero di pagina da visualizzare
        favouritesearchmessage(favouritemessage);  
               
-       var value = registry.byId('filterBoxEvent').get('value');    
+       var value = dom.byId('filterBoxEvent').value;    
        searchmessage(value,true,favouritemessage,(actualpagemessage+1), function(){
            loadnextpage = false;
            stopLoading();
@@ -1521,7 +1564,7 @@ createmessagedetail = function(){
             domStyle.set('filterBoxMessageDiv', 'display', 'block');
         }else{
             domStyle.set('filterBoxMessageDiv', 'display', 'none');
-            registry.byId('filterBoxMessage').set('value',null);
+            dom.byId('filterBoxMessage').value =null;
         }
 };
 
@@ -1592,7 +1635,7 @@ opendetailshowcase = function(id) {
 
 
 favouritesearchshowcase = function(favourite) {    
-    var value = registry.byId('filterBoxShowcase').get('value');
+    var value = dom.byId('filterBoxShowcase').value;
     favouriteshowcase = favourite;
     if(favourite) {
     //Controllo lo stato dei preferiti
@@ -1620,7 +1663,7 @@ pagingShowcase = function(e){
        //Calcolo il numero di pagina da visualizzare
       favouritesearchshowcase(favouriteshowcase);  
              
-       var value = registry.byId('filterBoxShowcase').get('value');    
+       var value = dom.byId('filterBoxShowcase').value;
        searchshowcase(value,true,favouriteshowcase,(actualpageshowcase+1), function(){
            loadnextpage = false;
            stopLoading();
@@ -1698,9 +1741,9 @@ createshowcasedetail = function(){
 
 merchantPreferred = function(preferred){
 
-    
+    startLoading();
     setMerchantPreferred(request,actualmerchantid,preferred,function(){
-        
+        stopLoading();
         if(preferred){
            domStyle.set('favouriteshowcasedetailbuttonko', 'display', 'none');
            domStyle.set('favouriteshowcasedetailbuttonok', 'display', 'inline');
@@ -1725,7 +1768,10 @@ scanqrcode = function() {
           var urlqrcode = result.text;
           setMerchantPreferredByQrCode(request,urlqrcode,function(){
             stopLoading();
-            createMessage("Negozio inserito nei preferiti!", function(){});
+            createMessage("Negozio inserito nei preferiti!", function(dlg){
+                dlg.hide();
+                dlg.destroyRecursive(false);
+            });
           });
       }, 
       function (error) {
@@ -2115,7 +2161,7 @@ scanqrcode = function() {
                                             registry.byId("ViewApplication").show(false,false);  
                                             
                                             /* Visualizzo la ricerca */
-                                            domStyle.set(registry.byId('filterBoxOffer').domNode, 'display', 'inline');
+                                            //domStyle.set('filterBoxOffer').domNode, 'display', 'inline');
                                             
                                             
                                             debuglog("SYNC APPLICATION");                                          

@@ -118,7 +118,7 @@ setMerchantPreferredByQrCode = function(request,qrcode,callback){
             var message = response.data.messageList;
             error = false;
             if(message && message.length>0){
-                if(message[0]=='IROK'){
+                if(message[0]=='ISOK'){
                     error = false;
                 }else{
                     errorlog(message[0]);
@@ -270,7 +270,7 @@ getMessage = function(request,json, filter,merchantid,favourite, page, callback)
         startrow = (page-1)*rowforpage;
     }    
     jsonbean.startRow = startrow;
-    
+        
     if(filter){
         jsonbean.filter = filter;
     }
@@ -537,7 +537,7 @@ setMerchantPreferred = function(request,mercantId,preferred,callback){
             var message = response.data.messageList;
             error = false;
             if(message && message.length>0){
-                if(message[0]=='IROK'){
+                if(message[0]=='ISOK'){
                     error = false;
                 }else{
                     errorlog(message[0]);
