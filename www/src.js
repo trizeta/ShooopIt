@@ -3,8 +3,8 @@
 */
 user = null;
 debug = false;
-//url = "http://app.sh1.it/messaging/rest/";
-url = "http://192.168.1.16:8080/messaging/rest/";
+url = "http://app.sh1.it/messaging/rest/";
+//url = "http://192.168.1.16:8080/messaging/rest/";
 urlimage = "http://app.sh1.it/images/";
 
 //Variabile per il messaggio
