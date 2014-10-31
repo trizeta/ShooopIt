@@ -4,7 +4,7 @@
 user = null;
 debug = false;
 //url = "http://app.sh1.it/messaging/rest/";
-url = "http://192.168.30.121:8080/messaging/rest/";
+url = "http://192.168.1.16:8080/messaging/rest/";
 urlimage = "http://app.sh1.it/images/";
 
 //Variabile per il messaggio
@@ -206,8 +206,8 @@ require([
                 }
                 
                 //Controllo se ha già offerte caricate altrimenti richiamo il metodo
-                var children = registry.byId('gridoffer').getChildren();
-                if(!children || children.length == 0){
+                var children = dom.byId('gridoffer').hasChildNodes();
+                if(!children){
                     startLoading();
                     searchoffer(null,false,favouriteoffer,1,function(){
                         registry.byId("tabOfferbutton").set("badge",undefined);
@@ -258,11 +258,8 @@ require([
                 } else {
                     domStyle.set('favouritenewsbuttonok', 'display', 'inline');                
                 }
-                
-                
-                
-                var children = registry.byId('gridnews').getChildren();
-                if(!children || children.length == 0){
+                            
+                if(!dom.byId('gridnews').hasChildNodes()){
                     startLoading();
                     searchnews(null,false,favouritenews,1,function(){
                         registry.byId("tabNewsbutton").set("badge",undefined);
@@ -355,8 +352,8 @@ require([
                     domStyle.set('favouriteeventbuttonok', 'display', 'inline');                 
                 }
                 
-                var children = registry.byId('gridevent').getChildren();
-                if(!children || children.length == 0){
+                var children = dom.byId('gridevent').hasChildNodes();
+                if(!children){
                     startLoading();
                     searchevent(null,false,favouriteevent,1,function(){
                         stopLoading();
@@ -930,11 +927,18 @@ searchnews = function(filter,append,favourite,page,callback){
     actualpagenews = page;   
     getNews(request,json,filter,favourite,page,function(news){
         
-        var gridnews = registry.byId("gridnews");
+        var gridnews = dom.byId("gridnews");
         
         //Elimino le vecchie news
         if(!append){
-            gridnews.destroyDescendants();        
+            //gridnews.destroyDescendants(); 
+            try{
+                while (gridnews.hasChildNodes()) {
+                    gridnews.removeChild(gridnews.lastChild);
+                }
+            }catch(e){
+                alert(e);
+            }
         }
         
         //Ciclo le news 
@@ -990,7 +994,7 @@ searchnews = function(filter,append,favourite,page,callback){
                     
                     var labelBox = domConstruct.create("span", {innerHTML: html}, msgBox);
                                     
-                    gridnews.addChild(pane); 
+                    gridnews.appendChild(pane.domNode); 
                     pane.startup();
                 }                    
             }catch(e){
@@ -1088,11 +1092,17 @@ searchoffer = function(filter,append,favourite,page,callback){
     
     getOffer(request,json,filter,merchantid,favourite,page,function(offers){
         
-        var gridoffer = registry.byId("gridoffer");
+        var gridoffer = dom.byId("gridoffer");
         
         //Elimino le vecchie news
         if(!append){
-            gridoffer.destroyDescendants();        
+            try{
+                while (gridoffer.hasChildNodes()) {
+                    gridoffer.removeChild(gridoffer.lastChild);
+                }
+            }catch(e){
+                alert(e);
+            }   
         }
         
         //Ciclo le news 
@@ -1121,7 +1131,7 @@ searchoffer = function(filter,append,favourite,page,callback){
                     });   
                     
                     var labelBox = domConstruct.create("span", {innerHTML: html}, msgBox);
-                    gridoffer.addChild(pane); 
+                    gridoffer.appendChild(pane.domNode);
                     pane.startup();
                 }                    
             }catch(e){
@@ -1276,11 +1286,17 @@ searchevent = function(filter,append,favourite,page,callback){
     
     getEvent(request,json,filter,merchantid,favourite,page,function(events){
         
-        var gridevent = registry.byId("gridevent");
+        var gridevent = dom.byId("gridevent");
         
         //Elimino le vecchie news
         if(!append){
-            gridevent.destroyDescendants();        
+            try{
+                while (gridevent.hasChildNodes()) {
+                    gridevent.removeChild(gridevent.lastChild);
+                }
+            }catch(e){
+                alert(e);
+            }  
         }
         
         //Ciclo le news 
@@ -1309,7 +1325,7 @@ searchevent = function(filter,append,favourite,page,callback){
                     });   
                     
                     var labelBox = domConstruct.create("span", {innerHTML: html}, msgBox);
-                    gridevent.addChild(pane); 
+                    gridevent.appendChild(pane.domNode);
                     pane.startup();
                 }                    
             }catch(e){
@@ -1456,11 +1472,17 @@ searchmessage = function(filter,append,favourite,page,callback){
     
     getMessage(request,json,filter,merchantid,favourite,page,function(messages){
         
-        var gridmessage = registry.byId("gridmessage");
+        var gridmessage = dom.byId("gridmessage");
         
         //Elimino le vecchie news
         if(!append){
-            gridmessage.destroyDescendants();        
+            try{
+                while (gridevent.hasChildNodes()) {
+                    gridevent.removeChild(gridevent.lastChild);
+                }
+            }catch(e){
+                alert(e);
+            }      
         }
         
         //Ciclo i messaggi 
@@ -1485,7 +1507,7 @@ searchmessage = function(filter,append,favourite,page,callback){
                     
                     
                     var labelBox = domConstruct.create("span", {innerHTML: html}, msgBox);
-                    gridmessage.addChild(pane); 
+                    gridmessage.appendChild(pane.domNode);
                     pane.startup();
                 }                    
             }catch(e){
@@ -1581,11 +1603,17 @@ searchshowcase = function(filter,append,favourite,page,callback){
     actualpageshowcase = page;   
     getShowcase(request,json,filter,favourite,page,function(showcases){
         
-        var gridshowcase = registry.byId("gridshowcase");
+        var gridshowcase = dom.byId("gridshowcase");
         
         //Elimino le vecchie news
         if(!append){
-            gridshowcase.destroyDescendants();        
+             try{
+                while (gridshowcase.hasChildNodes()) {
+                    gridshowcase.removeChild(gridshowcase.lastChild);
+                }
+            }catch(e){
+                alert(e);
+            }     
         }
         
         //Ciclo le news 
@@ -1614,7 +1642,7 @@ searchshowcase = function(filter,append,favourite,page,callback){
                     });   
                     
                     var labelBox = domConstruct.create("span", {innerHTML: html}, msgBox);
-                    gridshowcase.addChild(pane); 
+                    gridshowcase.appendChild(pane.domNode);
                     pane.startup();
                 }                    
             }catch(e){

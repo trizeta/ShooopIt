@@ -17,6 +17,15 @@
         <link rel="stylesheet" href="script/dojox/mobile/themes/common/domButtons/DomButtonRedBadge.css" rel="stylesheet"/>
                     
         <style>
+            
+            .mblGridItemTerminator{
+                clear: none;
+                display: none;
+            }
+            
+            body{
+                font-family: "opensans";
+            }
                         
             #pull {
               position: absolute;              
@@ -67,7 +76,7 @@
                 line-height: 29px;
                 padding: 0px 8px;
                 color: white;
-                font-family: Helvetica;
+                /*font-family: Helvetica;*/
                 font-size: 13px;
                 font-weight: bold;
                 border: 1px outset #9cacc0;
@@ -275,13 +284,16 @@
             
             .innerPane {
                //border:1px solid #70c2e3;
-               width:95%;
+               width:100%;
                text-align:center; 
                margin: 0 auto;
-               margin-top:10px;
+               margin-bottom:10px;
                min-height:100px;    
                background-color: white;
-               //border-radius: 15px;
+               margin-left: 10px;
+               margin-right: 10px;
+               display: inline-block;
+               
             } 
                         
             .innerPaneDetail {
@@ -292,7 +304,8 @@
                height:auto;
                background-color: white;
                padding:5px;
-               font-family: open-sans;
+               font-family: "opensans";               
+                              
             }       
             
             .innerPaneImg {
@@ -302,22 +315,27 @@
                 margin-left: auto;
                 margin-right: auto;
                 display: block;
-                
             }
             
             .innerPane span {
                 margin-top: 2px;
                 padding: 5px;
-                /*border-top: 1px solid #70c2e3;*/
                 display: block;
+                font-family: "opensans";
             }
+            
+            .innerPane img {
+                border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+            }            
             
             .mblGridLayout{
                 -moz-column-count:2;
                 -webkit-column-count:2;
-                column-count:2; 
-                
-                
+                column-count:2;    
+            }
+            
+            .mblGridLayout div{
+                width: 95%;
             }
             
             /*
@@ -341,37 +359,39 @@
             
             
             .effect8
-{
-  	position:relative;       
-    -webkit-box-shadow:0 1px 1px rgba(0, 0, 0, 0.3), 0 0 2px rgba(0, 0, 0, 0.1) inset;
-       -moz-box-shadow:0 1px 1px rgba(0, 0, 0, 0.3), 0 0 2px rgba(0, 0, 0, 0.1) inset;
-            box-shadow:0 1px 1px rgba(0, 0, 0, 0.3), 0 0 2px rgba(0, 0, 0, 0.1) inset;
-}
-.effect8:before, .effect8:after
-{
-	content:"";
-    position:absolute; 
-    z-index:-1;
-    -webkit-box-shadow:0 0 2px rgba(0,0,0,0.8);
-    -moz-box-shadow:0 0 2px rgba(0,0,0,1);
-    box-shadow:0 0 2px rgba(0,0,0,1);
-    top:10px;
-    bottom:0px;
-    left:0;
-    right:0;
-    /*-moz-border-radius:100px / 10px;*/
-    /*border-radius:100px / 10px;*/
-} 
-.effect8:after
-{
-	right:10px; 
-    left:auto;
-    -webkit-transform:skew(8deg) rotate(3deg); 
-       -moz-transform:skew(8deg) rotate(3deg);     
-        -ms-transform:skew(8deg) rotate(3deg);     
-         -o-transform:skew(8deg) rotate(3deg); 
-            transform:skew(8deg) rotate(3deg);
-}
+            {
+                position:relative;       
+                -webkit-box-shadow:0 1px 1px rgba(0, 0, 0, 0.3), 0 0 2px rgba(0, 0, 0, 0.1) inset;
+                   -moz-box-shadow:0 1px 1px rgba(0, 0, 0, 0.3), 0 0 2px rgba(0, 0, 0, 0.1) inset;
+                        box-shadow:0 1px 1px rgba(0, 0, 0, 0.3), 0 0 2px rgba(0, 0, 0, 0.1) inset;
+            }
+            
+            .effect8:before, .effect8:after
+            {
+                content:"";
+                position:absolute; 
+                z-index:-1;
+                -webkit-box-shadow:0 0 2px rgba(0,0,0,0.1);
+                -moz-box-shadow:0 0 2px rgba(0,0,0,0.1);
+                box-shadow:0 0 2px rgba(0,0,0,0.1);
+                top:10px;
+                bottom:0px;
+                left:0;
+                right:0;
+                /*-moz-border-radius:100px / 10px;*/
+                /*border-radius:100px / 10px;*/
+            } 
+            
+            .effect8:after
+            {
+                /*right:10px; 
+                left:auto;
+                -webkit-transform:skew(8deg) rotate(3deg); 
+                   -moz-transform:skew(8deg) rotate(3deg);     
+                    -ms-transform:skew(8deg) rotate(3deg);     
+                     -o-transform:skew(8deg) rotate(3deg); 
+                        transform:skew(8deg) rotate(3deg);*/
+            }
             
             
             
@@ -491,7 +511,7 @@
                            <input placeholder="Filtri" onchange="searchnewsfilter()" type="search" id="filterBoxNews" class="mblFilteredEdgeToEdgeListSearchBox"/>
                            
                         </div>
-                        <div id="gridnews" data-dojo-type="dojox.mobile.GridLayout" data-dojo-props='cols:1'>
+                        <div id="gridnews" class="mblGridLayout" >
                         </div> 
                     </div>
     
