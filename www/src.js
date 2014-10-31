@@ -962,11 +962,12 @@ searchnews = function(filter,append,favourite,page,callback){
                 } 
                 
                 if(html){
-                    pane = new Pane();                                       
+                    pane = new Pane(); 
+                    //pane.set("class","effect8");
                     pane.set("bean",news[i]);
                     pane.on("click",function(){opendetailnews(this.id)});
                                         
-                    var msgBox = domConstruct.create("div", {class: "innerPane"}, pane.domNode);
+                    var msgBox = domConstruct.create("div", {class: "innerPane effect8"}, pane.domNode);
                     if(object_type != 'M'){
                         var srcimage = urlimage+news[i].fullPathName;
                         var imgBox = domConstruct.create("img", {src:srcimage, class:"innerPaneImg"}, msgBox);
@@ -1105,7 +1106,7 @@ searchoffer = function(filter,append,favourite,page,callback){
                     pane.set("bean",offers[i]);
                     pane.on("click",function(){opendetailoffer(this.id)});
                                         
-                    var msgBox = domConstruct.create("div", {class: "innerPane"}, pane.domNode);
+                    var msgBox = domConstruct.create("div", {class: "innerPane effect8"}, pane.domNode);
                     var srcimage = urlimage+offers[i].fullPathName;
                     var imgBox = domConstruct.create("img", {src:srcimage, class:"innerPaneImg"}, msgBox);
                     //Controllo se esiste l'immagine
@@ -1293,7 +1294,7 @@ searchevent = function(filter,append,favourite,page,callback){
                     pane.set("bean",events[i]);
                     pane.on("click",function(){opendetailevent(this.id)});
                                         
-                    var msgBox = domConstruct.create("div", {class: "innerPane"}, pane.domNode);
+                    var msgBox = domConstruct.create("div", {class: "innerPane effect8"}, pane.domNode);
                     var srcimage = urlimage+events[i].fullPathName;
                     var imgBox = domConstruct.create("img", {src:srcimage, class:"innerPaneImg"}, msgBox);
                     //Controllo se esiste l'immagine
@@ -1478,7 +1479,7 @@ searchmessage = function(filter,append,favourite,page,callback){
                     pane.set("bean",messages[i]);
                     pane.on("click",function(){opendetailmessage(this.id)});
                                         
-                    var msgBox = domConstruct.create("div", {class: "innerPane"}, pane.domNode);
+                    var msgBox = domConstruct.create("div", {class: "innerPane effect8"}, pane.domNode);
                     
                      var iconBox = domConstruct.create("label", {class:'icon ion-email icon-mess-color', style:"font-size:60px"}, msgBox);
                     
@@ -1598,7 +1599,7 @@ searchshowcase = function(filter,append,favourite,page,callback){
                     pane.set("bean",showcases[i]);
                     pane.on("click",function(){opendetailshowcase(this.id)});
                                         
-                    var msgBox = domConstruct.create("div", {class: "innerPane"}, pane.domNode);
+                    var msgBox = domConstruct.create("div", {class: "innerPane effect8"}, pane.domNode);
                     var srcimage = urlimage+showcases[i].fullPathName;
                     var imgBox = domConstruct.create("img", {src:srcimage, class:"innerPaneImg"}, msgBox);
                     //Controllo se esiste l'immagine

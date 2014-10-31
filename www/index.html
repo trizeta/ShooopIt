@@ -17,6 +17,7 @@
         <link rel="stylesheet" href="script/dojox/mobile/themes/common/domButtons/DomButtonRedBadge.css" rel="stylesheet"/>
                     
         <style>
+                        
             #pull {
               position: absolute;              
             }  
@@ -273,14 +274,14 @@
             }
             
             .innerPane {
-               border:1px solid #70c2e3;
+               //border:1px solid #70c2e3;
                width:95%;
                text-align:center; 
                margin: 0 auto;
                margin-top:10px;
                min-height:100px;    
                background-color: white;
-               border-radius: 15px;
+               //border-radius: 15px;
             } 
                         
             .innerPaneDetail {
@@ -291,17 +292,17 @@
                height:auto;
                background-color: white;
                padding:5px;
+               font-family: open-sans;
             }       
             
             .innerPaneImg {
-                max-height: 90%;
-                max-width: 90%;
-                height:90%;
-                width:90%;
+                max-width: 100%;
+                height:auto;
+                width:100%;
                 margin-left: auto;
                 margin-right: auto;
                 display: block;
-                padding-top: 5px;
+                
             }
             
             .innerPane span {
@@ -337,6 +338,40 @@
                 height:100%;
             }
             */
+            
+            
+            .effect8
+{
+  	position:relative;       
+    -webkit-box-shadow:0 1px 1px rgba(0, 0, 0, 0.3), 0 0 2px rgba(0, 0, 0, 0.1) inset;
+       -moz-box-shadow:0 1px 1px rgba(0, 0, 0, 0.3), 0 0 2px rgba(0, 0, 0, 0.1) inset;
+            box-shadow:0 1px 1px rgba(0, 0, 0, 0.3), 0 0 2px rgba(0, 0, 0, 0.1) inset;
+}
+.effect8:before, .effect8:after
+{
+	content:"";
+    position:absolute; 
+    z-index:-1;
+    -webkit-box-shadow:0 0 2px rgba(0,0,0,0.8);
+    -moz-box-shadow:0 0 2px rgba(0,0,0,1);
+    box-shadow:0 0 2px rgba(0,0,0,1);
+    top:10px;
+    bottom:0px;
+    left:0;
+    right:0;
+    /*-moz-border-radius:100px / 10px;*/
+    /*border-radius:100px / 10px;*/
+} 
+.effect8:after
+{
+	right:10px; 
+    left:auto;
+    -webkit-transform:skew(8deg) rotate(3deg); 
+       -moz-transform:skew(8deg) rotate(3deg);     
+        -ms-transform:skew(8deg) rotate(3deg);     
+         -o-transform:skew(8deg) rotate(3deg); 
+            transform:skew(8deg) rotate(3deg);
+}
             
             
             
@@ -389,7 +424,7 @@
         <img id="sfondo" src="img/SfondoHome.png" style="width:100%;height:100%;z-index:100;position:absolute;top:0;left:0" > </img>   
         
         <!-- View di Dettaglio a Tab -->
-        <div id="ViewApplication"  data-dojo-type="dojox.mobile.View" style="background-color:white;background-image:url('img/sfondoshoopit.png');background-repeat:repeat-x">
+        <div id="ViewApplication"  data-dojo-type="dojox.mobile.View" style="background-color:#FFFEEF;">
                     <!-- Header Tab -->    
                     <!-- <ul data-dojo-type="dojox.mobile.TabBar" single="true" fixed="top">
                         <li data-dojo-type="dojox.mobile.TabBarButton" class="icon ion-bag size-48" data-dojo-props="moveTo:'tabPubblicazioni', selected:true" ></li>
