@@ -653,7 +653,8 @@ require([
         };
 
         errorHandler = function(error) {
-            errorlog("ERROR",error);
+            //errorlog("ERROR",error);
+            //Error unregister WP8;
         };
 
         //Notifiche IOS
