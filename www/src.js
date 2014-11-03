@@ -478,6 +478,22 @@ require([
 		
         function onDeviceReady() {
             
+            //FIX STATUS BAR IOS
+            try{
+                StatusBar.overlaysWebView(false);
+            }catch(e){
+                
+            } 
+            
+            try{                  
+                domStyle.set('sfondo','z-index',-100);                
+                //Nascondo lo splah screen
+                navigator.splashscreen.hide();                      
+            } catch(e) {
+                errorlog("ERRORE VIEW APP - 100",e);
+            } 
+            
+            
             //Attivo il push notification
             try{
                 pushNotification = window.plugins.pushNotification;             
@@ -534,20 +550,7 @@ require([
                 errorlog("ERROR LOAD NEWS",e);
             } 
             
-            //FIX STATUS BAR IOS
-            try{
-                StatusBar.overlaysWebView(false);
-            }catch(e){
-                
-            } 
             
-            try{                  
-                domStyle.set('sfondo','z-index',-100);                
-                //Nascondo lo splah screen
-                navigator.splashscreen.hide();                      
-            } catch(e) {
-                errorlog("ERRORE VIEW APP - 100",e);
-            } 
             document.addEventListener("backbutton", onBackKeyDown, false);     
                     
            

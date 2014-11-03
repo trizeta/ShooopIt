@@ -357,6 +357,20 @@
             }
             */
             
+            #sfondo { 
+              background: url(img/SfondoHome.png) no-repeat center center fixed; 
+              -webkit-background-size: cover;
+              -moz-background-size: cover;
+              -o-background-size: cover;
+              background-size: cover;
+              position:absolute;;
+              left: 0;
+              top:0;   
+              width:100%;
+              height:100%;
+              z-index:10;             
+            }
+            
             
             .effect8
             {
@@ -441,7 +455,7 @@
     </head>
     <body>
         
-        <img id="sfondo" src="img/SfondoHome.png" style="width:100%;height:100%;z-index:100;position:absolute;top:0;left:0" > </img>   
+        <div id="sfondo" src="img/SfondoHome.png"> </div>   
         
         <!-- View di Dettaglio a Tab -->
         <div id="ViewApplication"  data-dojo-type="dojox.mobile.View" style="background-color:#FFFEEF;">
