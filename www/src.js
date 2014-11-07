@@ -197,6 +197,9 @@ require([
             dojo.connect(registry.byId("tabOffer"), "onBeforeTransitionIn", null, function(){
                 domStyle.set('headingoffer', 'display', 'inline');   
                 
+                dom.byId('headingoffer').innerHTML = 'Offerte';   
+                
+                
                 //Nascondo i bottoni
                 domStyle.set('searchofferfilterbutton', 'display', 'inline'); 
                 if(!favouriteoffer){
@@ -206,20 +209,26 @@ require([
                 }
                 
                 //Controllo se ha già offerte caricate altrimenti richiamo il metodo
-                var children = dom.byId('gridoffer').hasChildNodes();
-                if(!children){
+                if(dom.byId('gridoffer').hasChildNodes()){                    
                     startLoading();
                     searchoffer(null,false,favouriteoffer,1,function(){
                         registry.byId("tabOfferbutton").set("badge",undefined);
                         stopLoading();
                     });
-                }else if(registry.byId("tabOfferbutton").get("badge")){
+                } else if(registry.byId("tabOfferbutton").get("badge")){
                     startLoading();
                     searchoffer(null,false,favouriteoffer,1,function(){
                         //Porto badge a 0
                         registry.byId("tabOfferbutton").set("badge",undefined);
                         stopLoading();
                     });                  
+                } else if(actualmerchantid){
+                    startLoading();
+                    searchoffer(null,false,favouriteoffer,1,function(){
+                        //Porto badge a 0
+                        registry.byId("tabOfferbutton").set("badge",undefined);
+                        stopLoading();
+                    }); 
                 }
             });
                       
@@ -251,6 +260,8 @@ require([
             dojo.connect(registry.byId("tabNews"), "onBeforeTransitionIn", null, function(){
                 domStyle.set('headingnews', 'display', 'inline');   
                 
+               
+                
                  //Nascondo i bottoni
                 domStyle.set('searchnewsfilterbutton', 'display', 'inline'); 
                 if(!favouritenews){
@@ -273,12 +284,6 @@ require([
                         stopLoading();
                     });                  
                 }
-                
-                
-                
-                
-                
-                
             });
             
             dojo.connect(registry.byId("tabNews"), "onBeforeTransitionOut", null, function(){
@@ -294,6 +299,8 @@ require([
             /* MESSAGGIO */
             dojo.connect(registry.byId("tabMessage"), "onBeforeTransitionIn", null, function(){
                 domStyle.set('headingmessage', 'display', 'inline'); 
+                
+                dom.byId('headingmessage').innerHTML = 'Messaggi'; 
                 
                 domStyle.set('searchmessagefilterbutton', 'display', 'inline'); 
                 if(!favouritemessage){
@@ -317,6 +324,13 @@ require([
                         registry.byId("tabMessagebutton").set("badge",undefined);
                         stopLoading();
                     });                  
+                } else if(actualmerchantid){
+                    startLoading();
+                    searchmessage(null,false,favouritemessage,1,function(){
+                        //Porto badge a 0
+                        registry.byId("tabMessagebutton").set("badge",undefined);
+                        stopLoading();
+                    }); 
                 }              
             });
             
@@ -344,7 +358,10 @@ require([
             dojo.connect(registry.byId("tabEvent"), "onBeforeTransitionIn", null, function(){
                 domStyle.set('headingevent', 'display', 'inline');   
                 
+                dom.byId('headingevent').innerHTML = 'Eventi'; 
+                
                 domStyle.set('searcheventfilterbutton', 'display', 'inline');
+                
                 
                 if(!favouriteevent){
                     domStyle.set('favouriteeventbuttonko', 'display', 'inline'); 
@@ -365,7 +382,14 @@ require([
                         registry.byId("tabEventbutton").set("badge",undefined);
                         stopLoading();
                     });                  
-                }              
+                } else if(actualmerchantid){
+                    startLoading();
+                     searchevent(null,false,favouriteevent,1,function(){
+                        //Porto badge a 0
+                        registry.byId("tabEventbutton").set("badge",undefined);
+                        stopLoading();
+                    }); 
+                }             
             });
             
             dojo.connect(registry.byId("tabEvent"), "onBeforeTransitionOut", null, function(){
@@ -390,6 +414,7 @@ require([
             
              /* SHOWCASE */
             dojo.connect(registry.byId("tabShowcase"), "onBeforeTransitionIn", null, function(){
+                            
                 domStyle.set('headingshowcase', 'display', 'inline');   
                 
                 //Nascondo i bottoni
@@ -466,10 +491,16 @@ require([
             connect.subscribe("/dojox/mobile/carouselSelect", function(carousel, itemWidget, itemObject, index){
                 //Visualizzo a tutto schermo l'immagine
                 var imgdetailview = registry.byId("imagedetail");            
-                            
-                dom.byId("imgdetail").src = itemObject.src;
-
-                imgdetailview.show();                                          
+                                
+                srcimage = itemObject.src.replace('_thumb','');
+                //dom.byId("imgdetail").src = srcimage;        
+                dom.byId("imgdetail").setAttribute('data-original',srcimage);
+                                                    
+                imgdetailview.show();                           
+                $("#imgdetail").lazyload({
+                    effect : "fadeIn"
+                });
+                
             });
                         
             //TODO DA COMMENTARE PER NATIVA
@@ -477,13 +508,11 @@ require([
        });
 		
         function onDeviceReady() {
-            
+                
             //FIX STATUS BAR IOS
             try{
                 StatusBar.overlaysWebView(false);
-            }catch(e){
-                
-            } 
+            }catch(e){} 
             
             try{                  
                 domStyle.set('sfondo','z-index',-100);                
@@ -552,8 +581,9 @@ require([
             
             
             document.addEventListener("backbutton", onBackKeyDown, false);     
-                    
-           
+          
+            
+            
         };
 
 /****************************************************************************************************************
@@ -915,9 +945,29 @@ require([
 *                                   METODI GENERALI
 ****************************************************************************************************************/
 
-
 selectTab = function(idmess) {
-    registry.byId(idmess).set("selected",true);
+    registry.byId(idmess).set("selected",true);    
+    
+    var ragsoc = "";
+    if(actualobject){
+        ragsoc = actualobject.ragSoc;
+    }else if(actualshowcase){
+        ragsoc = actualshowcase.ragSoc;
+    }
+    
+    if(idmess=='tabOfferbutton') {
+        dom.byId("headingoffer").innerHTML = "Offerte "+ragsoc;        
+        domStyle.set('favouriteofferbuttonko','display','none');
+        domStyle.set('favouriteofferbuttonok','display','none');        
+    } else if(idmess=='tabEventbutton') {
+        dom.byId("headingevent").innerHTML = "Eventi "+ragsoc;
+        domStyle.set('favouriteeventbuttonko','display','none');
+        domStyle.set('favouriteeventbuttonok','display','none');
+    } else if(idmess=='tabMessagebutton') {
+        dom.byId("headingmessage").innerHTML = "Messaggi "+ragsoc;
+        domStyle.set('favouritemessagebuttonko','display','none');
+        domStyle.set('favouritemessagebuttonok','display','none');
+    }
 };
 
 
@@ -944,6 +994,8 @@ searchnews = function(filter,append,favourite,page,callback){
                 alert(e);
             }
         }
+        
+       
         
         //Ciclo le news 
         for(i=0;i<news.length;i++){                        
@@ -978,8 +1030,15 @@ searchnews = function(filter,append,favourite,page,callback){
                     var msgBox = domConstruct.create("div", {class: "innerPane effect8"}, pane.domNode);
                     if(object_type != 'M'){
                         var srcimage = urlimage+news[i].fullPathName;
-                        var imgBox = domConstruct.create("img", {src:srcimage, class:"innerPaneImg"}, msgBox);
-
+                        
+                        var splitarray = srcimage.split('.');
+                        //Recupero il thumb
+                        srcimage =  srcimage.replace("."+splitarray[splitarray.length-1],"_thumb."+splitarray[splitarray.length-1]);
+                                   
+                        var imgBox = domConstruct.create("img", {class:"innerPaneImg"}, msgBox);
+                        
+                        imgBox.setAttribute('data-original',srcimage);
+                        
                         //Controllo se esiste l'immagine
                         ImgCache.isCached(srcimage, function(path, success) {                    
                             if(success) {
@@ -1005,6 +1064,14 @@ searchnews = function(filter,append,favourite,page,callback){
                 errorlog("SEARCH NEWS",e);
             }
         } 
+      
+        $("#gridnews .innerPaneImg").lazyload({
+            effect : "fadeIn",
+            container: $("#gridnews"),
+            failure_limit:999
+        });
+        
+        
         stopLoading();
         if(callback){
             callback();
@@ -1122,7 +1189,14 @@ searchoffer = function(filter,append,favourite,page,callback){
                                         
                     var msgBox = domConstruct.create("div", {class: "innerPane effect8"}, pane.domNode);
                     var srcimage = urlimage+offers[i].fullPathName;
-                    var imgBox = domConstruct.create("img", {src:srcimage, class:"innerPaneImg"}, msgBox);
+                            
+                    var splitarray = srcimage.split('.');
+                    //Recupero il thumb
+                    srcimage =  srcimage.replace("."+splitarray[splitarray.length-1],"_thumb."+splitarray[splitarray.length-1]);
+                    
+                    var imgBox = domConstruct.create("img", {class:"innerPaneImg"}, msgBox);
+                    imgBox.setAttribute('data-original',srcimage);
+                    
                     //Controllo se esiste l'immagine
                     ImgCache.isCached(srcimage, function(path, success) {                    
                         if(success) {
@@ -1142,6 +1216,13 @@ searchoffer = function(filter,append,favourite,page,callback){
                 errorlog("SEARCH OFFERS",e);
             }
         } 
+        
+        $("#gridoffer .innerPaneImg").lazyload({
+            effect : "fadeIn",
+            container: $("#gridoffer"),
+            failure_limit:999
+        });
+        
         stopLoading();
         if(callback){
             callback();
@@ -1161,18 +1242,31 @@ favouritesearchoffer = function(favourite) {
     favouriteoffer = favourite;
     if(favourite) {
     //Controllo lo stato dei preferiti
-        domStyle.set('favouriteofferbuttonko', 'display','none');
-        domStyle.set('favouriteofferbuttonok', 'display','inline');
+        if(!actualmerchantid){
+            domStyle.set('favouriteofferbuttonko', 'display','none');
+            domStyle.set('favouriteofferbuttonok', 'display','inline');
+        }
         searchoffer(value,false,true,1);    
     } else {
-        domStyle.set('favouriteofferbuttonko', 'display','inline');
-        domStyle.set('favouriteofferbuttonok', 'display','none');
+         if(!actualmerchantid){
+            domStyle.set('favouriteofferbuttonko', 'display','inline');
+            domStyle.set('favouriteofferbuttonok', 'display','none');
+         }
         searchoffer(value,false,false,1);
     }
 };
 
-searchofferfilter = function() {
+searchofferfilter = function(){
     favouritesearchoffer(favouriteoffer);  
+};
+
+controllOfferTab = function(){
+    if(actualmerchantid){
+        actualmerchantid = null; 
+        actualobject=null;
+        favouritesearchoffer(favouriteoffer); 
+        dom.byId('headingoffer').innerHTML = 'Offerte';
+    }
 };
 
 pagingOffer = function(e){
@@ -1254,7 +1348,10 @@ createofferdetail = function(){
     getOfferImages(request,objectId,function(images){         
         var imgs = new Array();
         for(i=0;i<images.length;i++) {
-            var srcimage = images[i].fullPathName;
+            var srcimage = images[i].fullPathName;  
+            var splitarray = srcimage.split('.');
+            //Recupero il thumb
+            srcimage =  srcimage.replace("."+splitarray[splitarray.length-1],"_thumb."+splitarray[splitarray.length-1]);               
             var obj = new Object();
             obj.src = srcimage;  
             imgs.push(obj);                     
@@ -1316,7 +1413,12 @@ searchevent = function(filter,append,favourite,page,callback){
                                         
                     var msgBox = domConstruct.create("div", {class: "innerPane effect8"}, pane.domNode);
                     var srcimage = urlimage+events[i].fullPathName;
-                    var imgBox = domConstruct.create("img", {src:srcimage, class:"innerPaneImg"}, msgBox);
+                    var splitarray = srcimage.split('.');
+                    //Recupero il thumb
+                    srcimage =  srcimage.replace("."+splitarray[splitarray.length-1],"_thumb."+splitarray[splitarray.length-1]);
+                    
+                    var imgBox = domConstruct.create("img", {class:"innerPaneImg"}, msgBox);
+                    imgBox.setAttribute('data-original',srcimage);
                     //Controllo se esiste l'immagine
                     ImgCache.isCached(srcimage, function(path, success) {                    
                         if(success) {
@@ -1336,6 +1438,13 @@ searchevent = function(filter,append,favourite,page,callback){
                 errorlog("SEARCH EVENTS",e);
             }
         } 
+        
+        $("#gridevent .innerPaneImg").lazyload({
+            effect : "fadeIn",
+            container: $("#gridevent"),
+            failure_limit:999
+        });
+        
         stopLoading();
         if(callback){
             callback();
@@ -1354,13 +1463,17 @@ favouritesearchevent = function(favourite) {
     var value = dom.byId('filterBoxEvent').value;
     favouriteevent = favourite;
     if(favourite) {
-    //Controllo lo stato dei preferiti
-        domStyle.set('favouriteeventbuttonko', 'display','none');
-        domStyle.set('favouriteeventbuttonok', 'display','inline');
+        if(actualmerchantid){
+            //Controllo lo stato dei preferiti
+            domStyle.set('favouriteeventbuttonko', 'display','none');
+            domStyle.set('favouriteeventbuttonok', 'display','inline');
+        }
         searchevent(value,false,true,1);    
     } else {
-        domStyle.set('favouriteeventbuttonko', 'display','inline');
-        domStyle.set('favouriteeventbuttonok', 'display','none');
+        if(actualmerchantid){
+            domStyle.set('favouriteeventbuttonko', 'display','inline');
+            domStyle.set('favouriteeventbuttonok', 'display','none');
+        }
         searchevent(value,false,false,1);
     }
 };
@@ -1368,6 +1481,16 @@ favouritesearchevent = function(favourite) {
 searcheventfilter = function() {
     favouritesearchevent(favouriteevent);  
 };
+
+controllEventTab = function(){
+    if(actualmerchantid){
+        actualmerchantid = null; 
+        actualobject=null;
+        favouritesearchevent(favouriteevent);
+        dom.byId('headingevent').innerHTML = 'Eventi';
+    }
+};
+
 
 pagingEvent = function(e){
    if(e.afterBottom && !loadnextpage) {
@@ -1536,19 +1659,32 @@ favouritesearchmessage = function(favourite) {
     var value = dom.byId('filterBoxMessage').value;
     favouritemessage = favourite;
     if(favourite) {
-    //Controllo lo stato dei preferiti
-        domStyle.set('favouritemessagebuttonko', 'display','none');
-        domStyle.set('favouritemessagebuttonok', 'display','inline');
+        if(actualmerchantid){
+            //Controllo lo stato dei preferiti
+            domStyle.set('favouritemessagebuttonko', 'display','none');
+            domStyle.set('favouritemessagebuttonok', 'display','inline');
+        }
         searchmessage(value,false,true,1);    
     } else {
-        domStyle.set('favouritemessagebuttonko', 'display','inline');
-        domStyle.set('favouritemessagebuttonok', 'display','none');
+        if(actualmerchantid){
+            domStyle.set('favouritemessagebuttonko', 'display','inline');
+            domStyle.set('favouritemessagebuttonok', 'display','none');
+        }
         searchmessage(value,false,false,1);
     }
 };
 
 searchmessagefilter = function() {
     favouritesearchmessage(favouritemessage);  
+};
+
+controllMessageTab = function(){
+    if(actualmerchantid){
+        actualmerchantid = null; 
+        actualobject=null;
+        favouritesearchmessage(favouritemessage); 
+        dom.byId('headingmessage').innerHTML = 'Messaggi';
+    }
 };
 
 pagingMessage = function(e){
@@ -1633,7 +1769,12 @@ searchshowcase = function(filter,append,favourite,page,callback){
                                         
                     var msgBox = domConstruct.create("div", {class: "innerPane effect8"}, pane.domNode);
                     var srcimage = urlimage+showcases[i].fullPathName;
-                    var imgBox = domConstruct.create("img", {src:srcimage, class:"innerPaneImg"}, msgBox);
+                     var splitarray = srcimage.split('.');
+                    //Recupero il thumb
+                    srcimage =  srcimage.replace("."+splitarray[splitarray.length-1],"_thumb."+splitarray[splitarray.length-1]);
+                    
+                    var imgBox = domConstruct.create("img", {class:"innerPaneImg"}, msgBox);
+                    imgBox.setAttribute('data-original',srcimage);
                     //Controllo se esiste l'immagine
                     ImgCache.isCached(srcimage, function(path, success) {                    
                         if(success) {
@@ -1643,8 +1784,8 @@ searchshowcase = function(filter,append,favourite,page,callback){
                                 ImgCache.useCachedFile(imgBox);
                             });
                         }
-                    });   
-                    
+                    }); 
+                                
                     var labelBox = domConstruct.create("span", {innerHTML: html}, msgBox);
                     gridshowcase.appendChild(pane.domNode);
                     pane.startup();
@@ -1653,6 +1794,13 @@ searchshowcase = function(filter,append,favourite,page,callback){
                 errorlog("SEARCH SHOWCASES",e);
             }
         } 
+        
+        $("#gridshowcase .innerPaneImg").lazyload({
+            effect : "fadeIn",
+            container: $("#gridshowcase"),
+            failure_limit:999
+        });
+        
         stopLoading();
         if(callback){
             callback();

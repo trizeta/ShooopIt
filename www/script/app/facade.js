@@ -150,12 +150,10 @@ getEvent = function(request,json, filter,merchantid,favourite, page, callback){
         lst = new Array();
         lst.push(merchantid);
         jsonbean.merchantIds = lst;
-    }
-    
-    //Setto i preferiti
-    if(favourite){
+    }else if(favourite){
         jsonbean.star = favourite;
     }
+    
     
     //Righe di partenza
     startrow = 0;
@@ -257,12 +255,11 @@ getMessage = function(request,json, filter,merchantid,favourite, page, callback)
         lst = new Array();
         lst.push(merchantid);
         jsonbean.merchantIds = lst;
-    }
-    
-    //Setto i preferiti
-    if(favourite){
+    }else if(favourite){
         jsonbean.star = favourite;
     }
+    
+    
     
     //Righe di partenza
     startrow = 0;
@@ -327,10 +324,7 @@ getOffer = function(request,json, filter,merchantid,favourite, page, callback){
         lst = new Array();
         lst.push(merchantid);
         jsonbean.merchantIds = lst;
-    }
-    
-    //Setto i preferiti
-    if(favourite){
+    }else if(favourite){
         jsonbean.star = favourite;
     }
     

@@ -264,6 +264,14 @@
                 width:80%;
             }
             
+            .mblSimpleDialogText{
+                width: 100%
+            }
+            
+            .mblSimpleDialogButton{
+                width:100px;
+                margin:5px;
+            }
             
             .SearchBoxdiv{
                 width:100%;
@@ -447,11 +455,14 @@
         <script type="text/javascript" src="script/dojo/dojo.js" data-dojo-config="async: true, parseOnLoad: true, mblAlwaysHideAddressBar: true"></script>
         <script type="text/javascript" src="script/app/core/nova.data.js"></script>
         <script type="text/javascript" src="script/app/facade.js"></script>
-        <script type="text/javascript" src="script/app/imgcache.js"></script>
+        <script type="text/javascript" src="script/app/jquery-2.1.1.min.js"></script>
+        <script type="text/javascript" src="script/app/imgcache.js"></script>        
+        
+           
+        
+        <script type="text/javascript" src="script/app/jquery.lazyload.min.js"></script> 
+        <script type="text/javascript" src="script/app/jquery.scrollstop.js"></script> 
         <script type="text/javascript" src="src.js"></script>   
-        
-        
-        
     </head>
     <body>
         
@@ -618,23 +629,25 @@
                 
                     <!-- Dettaglio Vetrina -->
 					<div id="showcasedetail"  data-dojo-type="dojox.mobile.ScrollableView" > 	
-                       <ul dojoType="dojox.mobile.TabBar" single="true" fixed="top"   data-dojo-props="fill:'always'"> 
+                          <ul id="tabbarshowcase" dojoType="dojox.mobile.TabBar" single="true" fixed="top" data-dojo-props="fill:'always'"> 
                             <li dojotype="dojox.mobile.TabBarButton" id="tabinnershowcaseshowcase" moveTo="#" style="height:100%;padding-top:10px"  selected="true">Negozio</li>
                             <li dojotype="dojox.mobile.TabBarButton" moveTo="tabOffer" callback="function(){selectTab('tabOfferbutton')}" style="height:100%;padding-top:10px">Offerte</li>
                             <li dojotype="dojox.mobile.TabBarButton" moveTo="tabEvent" callback="function(){selectTab('tabEventbutton')}" style="height:100%;padding-top:10px">Eventi</li>
                             <li dojotype="dojox.mobile.TabBarButton" moveTo="tabMessage" callback="function(){selectTab('tabMessagebutton')}" style="height:100%;padding-top:10px">Messaggi</li>
-                      </ul>                        
+                      </ul>  
 				      <div id="carouselshowcaseimage" data-dojo-type="dojox.mobile.StoreCarousel" data-dojo-props="store:storeshowcaseimage, height:'150px', itemWidth:150, navButton:false" >  
                       </div>
-				    </div> 	
-    
-                            
+                    </div> 
+                    
+                   
+        
+        
                 <!-- Tab -->
                 <ul id="mastertabbar" dojoType="dojox.mobile.TabBar" single="true" fixed="bottom"   data-dojo-props="fill:'always'"> 
                     <li dojotype="dojox.mobile.TabBarButton" id="tabNewsbutton" moveTo="tabNews" class="icon ion-speakerphone size-24" style="height:100%;padding-top:10px"  selected="true"></li>
-                    <li dojotype="dojox.mobile.TabBarButton" id="tabOfferbutton" onclick="actualmerchantid = null; actualobject=null" moveTo="tabOffer" class="icon ion-bag size-24" style="height:100%;padding-top:10px"></li>
-                    <li dojotype="dojox.mobile.TabBarButton" id="tabMessagebutton" onclick="actualmerchantid = null; actualobject=null" moveTo="tabMessage" class="icon ion-email size-24" style="height:100%;padding-top:10px"></li>
-                    <li dojotype="dojox.mobile.TabBarButton" id="tabEventbutton" onclick="actualmerchantid = null; actualobject=null" moveTo="tabEvent" class="icon ion-calendar size-24" style="height:100%;padding-top:10px"></li>
+                    <li dojotype="dojox.mobile.TabBarButton" id="tabOfferbutton" onclick="controllOfferTab()" moveTo="tabOffer" class="icon ion-bag size-24" style="height:100%;padding-top:10px"></li>
+                    <li dojotype="dojox.mobile.TabBarButton" id="tabMessagebutton" onclick="controllMessageTab()" moveTo="tabMessage" class="icon ion-email size-24" style="height:100%;padding-top:10px"></li>
+                    <li dojotype="dojox.mobile.TabBarButton" id="tabEventbutton" onclick="controllEventTab()" moveTo="tabEvent" class="icon ion-calendar size-24" style="height:100%;padding-top:10px"></li>
                     <li dojotype="dojox.mobile.TabBarButton" id="tabShowcasebutton" onclick="actualmerchantid = null; actualobject=null" moveTo="tabShowcase" class="icon ion-image size-24" style="height:100%;padding-top:10px"></li>
                     <li dojotype="dojox.mobile.TabBarButton" onclick="scanqrcode()" class="icon ion-qr-scanner size-24" style="height:100%;padding-top:10px"></li>
 	           </ul>             
