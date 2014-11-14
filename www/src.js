@@ -48,7 +48,6 @@ favouriteshowcase = true;
 //MerchantID
 actualmerchantid = null;
 
-
 //Flag di caricamento pagina
 loadnextpage = false;
 
@@ -57,8 +56,6 @@ pushNotification = null;
 
 //ChannelName WP8
 channelName = '';
-
-
 
 /* Configurazione Iniziale */
 var dojoConfig={
@@ -516,13 +513,18 @@ require([
             
             try{                  
                 domStyle.set('sfondo','z-index',-100);                
-                //Nascondo lo splah screen
-                navigator.splashscreen.hide();                      
+                                    
             } catch(e) {
                 errorlog("ERRORE VIEW APP - 100",e);
             } 
             
-            
+            try{     
+                //Nascondo lo splah screen
+                navigator.splashscreen.hide(); 
+            }catch(e) {
+                errorlog("ERRORE VIEW APP - 100",e);
+            }
+                    
             //Attivo il push notification
             try{
                 pushNotification = window.plugins.pushNotification;             
@@ -531,59 +533,58 @@ require([
             }
             
             //Setto il deviceinfo
-            try{
-                //Recupero id del dispositivo
-                deviceID = device.uuid;
-                startLoading();                
-                brand = '';
-                model = device.model;
-                opsystem = device.platform;
-                opversion = device.version;               
-                setDeviceInfo(request,brand,model,opsystem,opversion,null,function(devicebean){
-                    
-                    //Setto i badge di news, eventi, messaggi, offerte
-                    if(devicebean.newsnew && devicebean.newsnew>0){
-                        registry.byId("tabNewsbutton").set("badge",devicebean.newsnew);
-                    }
-                    if(devicebean.eventnew && devicebean.eventnew>0){
-                        registry.byId("tabEventbutton").set("badge",devicebean.eventnew);
-                    }
-                    if(devicebean.messagenew && devicebean.messagenew>0){
-                        registry.byId("tabMessagebutton").set("badge",devicebean.messagenew);
-                    }
-                    if(devicebean.offernew && devicebean.offernew>0){
-                        registry.byId("tabOfferbutton").set("badge",devicebean.offernew);
-                    }
+             setTimeout(function(){
+                try{
+                    //Recupero id del dispositivo
+                    deviceID = device.uuid;
+                    startLoading();                
+                    brand = '';
+                    model = device.model;
+                    opsystem = device.platform;
+                    opversion = device.version;               
+                    setDeviceInfo(request,brand,model,opsystem,opversion,null,function(devicebean){
 
-                    if(!devicebean.tokenPushMessage){
-                        registerdevice();
-                    }else if(device.platform == "Win32NT"){
-                        //In WP8 registro sempre il canale di comunicazione
-                         registerdevice();
-                    }
-                    stopLoading();
-                });
-            }catch(e) {
-               //Non faccio nulla e non salvo le preferenze
-                deviceID = 'demo';
-            } 
-            
-            try {                
-                //Inizializzo imgcache
-                ImgCache.init(function(){
-                    searchnews(null,false,favouritenews,1); 
-                }, function(){
-                    searchnews(null,false,favouritenews,1); 
-                });          
-            } catch(e){
-                errorlog("ERROR LOAD NEWS",e);
-            } 
-            
+                        //Setto i badge di news, eventi, messaggi, offerte
+                        if(devicebean.newsnew && devicebean.newsnew>0){
+                            registry.byId("tabNewsbutton").set("badge",devicebean.newsnew);
+                        }
+                        if(devicebean.eventnew && devicebean.eventnew>0){
+                            registry.byId("tabEventbutton").set("badge",devicebean.eventnew);
+                        }
+                        if(devicebean.messagenew && devicebean.messagenew>0){
+                            registry.byId("tabMessagebutton").set("badge",devicebean.messagenew);
+                        }
+                        if(devicebean.offernew && devicebean.offernew>0){
+                            registry.byId("tabOfferbutton").set("badge",devicebean.offernew);
+                        }
+
+                        if(!devicebean.tokenPushMessage){
+                            registerdevice();
+                        }else if(device.platform == "Win32NT"){
+                            //In WP8 registro sempre il canale di comunicazione
+                             registerdevice();
+                        }
+                        stopLoading();
+                    });
+                }catch(e) {
+                   //Non faccio nulla e non salvo le preferenze
+                    deviceID = 'demo';
+                }
+                 
+                try {                
+                    //Inizializzo imgcache
+                    ImgCache.init(function(){
+                        searchnews(null,false,favouritenews,1); 
+                    }, function(){
+                        searchnews(null,false,favouritenews,1); 
+                    });          
+                } catch(e){
+                    errorlog("ERROR LOAD NEWS",e);
+                }  
+             },100);
             
             document.addEventListener("backbutton", onBackKeyDown, false);     
           
-            
-            
         };
 
 /****************************************************************************************************************
@@ -2221,9 +2222,9 @@ scanqrcode = function() {
         */
         errorlog = function errorlog(message, e){
             if(e && e.code){
-                alert("ERROR:"+message+" - "+e.code);
+                //alert("ERROR:"+message+" - "+e.code);
             }else{
-                alert("ERROR:"+message+" - "+e);
+                //alert("ERROR:"+message+" - "+e);
             }
             stopLoading();
             loadnextpage = false;
