@@ -481,7 +481,8 @@
                     <div id="headingtop" data-dojo-type="dojox.mobile.Heading" fixed="top" style="border-bottom:2px solid white">
                                     
                         <div id="headinghome" style="display:inline;float:left;height:90%;padding-left:5px">
-                             <img src="img/logo36.png"></img>                                             
+                             <img id="imagelogo" src="img/logo36.png"></img> 
+                             <label id="headingback" data-dojo-type="dojox.mobile.ToolBarButton" data-dojo-props="transitionDir:-1" style="display:none;color:white">Indietro</label>
                         </div>
             
                         <label id="headingnews" style="display:none;color:white">News</label>
@@ -607,7 +608,7 @@
 					<div id="offerdetail"  data-dojo-type="dojox.mobile.ScrollableView"> 	
                         <ul dojoType="dojox.mobile.TabBar" single="true" fixed="top"   data-dojo-props="fill:'always'"> 
                             <li dojotype="dojox.mobile.TabBarButton" id="tabinnershowcaseoffer" moveTo="#" style="height:100%;padding-top:10px"  selected="true">Offerta</li>
-                            <li dojotype="dojox.mobile.TabBarButton" moveTo="showcasedetail" callback="function(){selectTab('tabShowcasebutton')}" style="height:100%;padding-top:10px">Negozio</li>
+                            <li dojotype="dojox.mobile.TabBarButton" moveTo="showcasedetail" callback="function(){selectTab('tabShowcasebutton');hideback()}" style="height:100%;padding-top:10px">Negozio</li>
                         </ul>
                         <div id="carouselofferimage" data-dojo-type="dojox.mobile.StoreCarousel" data-dojo-props="store:storeofferimage, height:'150px', itemWidth:150, navButton:false" >  
                         </div>
@@ -616,8 +617,8 @@
                     <!-- Dettaglio Evento -->
 					<div id="eventdetail"  data-dojo-type="dojox.mobile.ScrollableView" > 		
                         <ul dojoType="dojox.mobile.TabBar" single="true" fixed="top"   data-dojo-props="fill:'always'"> 
-                            <li dojotype="dojox.mobile.TabBarButton" id="tabinnershowcaseevent" moveTo="#" style="height:100%;padding-top:10px"  selected="true">Offerta</li>
-                            <li dojotype="dojox.mobile.TabBarButton" moveTo="showcasedetail" callback="function(){selectTab('tabShowcasebutton')}" style="height:100%;padding-top:10px">Negozio</li>
+                            <li dojotype="dojox.mobile.TabBarButton" id="tabinnershowcaseevent" moveTo="#" style="height:100%;padding-top:10px"  selected="true">Evento</li>
+                            <li dojotype="dojox.mobile.TabBarButton" moveTo="showcasedetail" callback="function(){selectTab('tabShowcasebutton');hideback()}" style="height:100%;padding-top:10px">Negozio</li>
                         </ul>
 					   <div id="carouseleventimage" data-dojo-type="dojox.mobile.StoreCarousel" data-dojo-props="store:storeofferimage, height:'150px', itemWidth:150, navButton:false" >  
                        </div>

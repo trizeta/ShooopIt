@@ -116,7 +116,7 @@ setMerchantPreferredByQrCode = function(request,qrcode,callback){
         function(response) {
             //Controllo messaggi di errore
             var message = response.data.messageList;
-            error = false;
+            error = true;
             if(message && message.length>0){
                 if(message[0]=='ISOK'){
                     error = false;
@@ -124,9 +124,7 @@ setMerchantPreferredByQrCode = function(request,qrcode,callback){
                     errorlog(message[0]);
                 }
             }                    
-            if(!error){
-                callback();           
-            }            
+            callback(error);           
         },
         function(error) {
             errorlog("Errore Salvataggio Preferenza",error);            

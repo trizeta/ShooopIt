@@ -192,6 +192,10 @@ require([
                         
             /* OFFERTA */
             dojo.connect(registry.byId("tabOffer"), "onBeforeTransitionIn", null, function(){
+                
+                domStyle.set('imagelogo', 'display', 'inline');  
+                domStyle.set('headingback', 'display', 'none'); 
+                
                 domStyle.set('headingoffer', 'display', 'inline');   
                 
                 dom.byId('headingoffer').innerHTML = 'Offerte';   
@@ -232,6 +236,7 @@ require([
             
             dojo.connect(registry.byId("tabOffer"), "onBeforeTransitionOut", null, function(){
                 domStyle.set('headingoffer', 'display', 'none'); 
+                domStyle.set('imagelogo', 'display', 'none');  
                 
                 //Nascondo i bottoni
                 domStyle.set('searchofferfilterbutton', 'display', 'none'); 
@@ -244,6 +249,8 @@ require([
                 //Creo il dettaglio dell'offerta
                 createofferdetail(actualoffer); 
                 domStyle.set('headingoffer', 'display', 'inline');    
+                domStyle.set('headingback', 'display', 'inline'); 
+                
                 selectTab('tabinnershowcaseoffer');
                 
             });
@@ -256,8 +263,8 @@ require([
             /* NEWS */
             dojo.connect(registry.byId("tabNews"), "onBeforeTransitionIn", null, function(){
                 domStyle.set('headingnews', 'display', 'inline');   
-                
-               
+                domStyle.set('imagelogo', 'display', 'inline');  
+                domStyle.set('headingback', 'display', 'none'); 
                 
                  //Nascondo i bottoni
                 domStyle.set('searchnewsfilterbutton', 'display', 'inline'); 
@@ -285,6 +292,9 @@ require([
             
             dojo.connect(registry.byId("tabNews"), "onBeforeTransitionOut", null, function(){
                 domStyle.set('headingnews', 'display', 'none'); 
+                domStyle.set('imagelogo', 'display', 'none'); 
+                
+                
                                 
                 //Nascondo i bottoni
                 domStyle.set('searchnewsfilterbutton', 'display', 'none'); 
@@ -296,6 +306,8 @@ require([
             /* MESSAGGIO */
             dojo.connect(registry.byId("tabMessage"), "onBeforeTransitionIn", null, function(){
                 domStyle.set('headingmessage', 'display', 'inline'); 
+                domStyle.set('imagelogo', 'display', 'inline');  
+                domStyle.set('headingback', 'display', 'none'); 
                 
                 dom.byId('headingmessage').innerHTML = 'Messaggi'; 
                 
@@ -333,6 +345,7 @@ require([
             
             dojo.connect(registry.byId("tabMessage"), "onBeforeTransitionOut", null, function(){
                 domStyle.set('headingmessage', 'display', 'none');  
+                domStyle.set('imagelogo', 'display', 'none');  
                 
                 //Nascondo i bottoni
                 domStyle.set('searchmessagefilterbutton', 'display', 'none'); 
@@ -344,7 +357,8 @@ require([
             dojo.connect(registry.byId("messagedetail"), "onBeforeTransitionIn", null, function(){
                 //Creo il dettaglio dell'offerta
                 createmessagedetail(actualmessage); 
-                domStyle.set('headingmessage', 'display', 'inline'); 
+                domStyle.set('headingmessage', 'display', 'inline');
+                domStyle.set('headingback', 'display', 'inline'); 
             });
             
             dojo.connect(registry.byId("messagedetail"), "onBeforeTransitionOut", null, function(){
@@ -354,6 +368,8 @@ require([
             /* EVENTI */
             dojo.connect(registry.byId("tabEvent"), "onBeforeTransitionIn", null, function(){
                 domStyle.set('headingevent', 'display', 'inline');   
+                domStyle.set('imagelogo', 'display', 'inline');  
+                domStyle.set('headingback', 'display', 'none'); 
                 
                 dom.byId('headingevent').innerHTML = 'Eventi'; 
                 
@@ -391,6 +407,7 @@ require([
             
             dojo.connect(registry.byId("tabEvent"), "onBeforeTransitionOut", null, function(){
                 domStyle.set('headingevent', 'display', 'none'); 
+                domStyle.set('imagelogo', 'display', 'none');  
                 
                 domStyle.set('searcheventfilterbutton', 'display', 'none'); 
                 domStyle.set('favouriteeventbuttonko', 'display', 'none'); 
@@ -402,6 +419,7 @@ require([
                 //Creo il dettaglio dell'offerta
                 createeventdetail(actualevent); 
                 domStyle.set('headingevent', 'display', 'inline'); 
+                domStyle.set('headingback', 'display', 'inline'); 
                 selectTab('tabinnershowcaseevent');
             });
             
@@ -413,6 +431,8 @@ require([
             dojo.connect(registry.byId("tabShowcase"), "onBeforeTransitionIn", null, function(){
                             
                 domStyle.set('headingshowcase', 'display', 'inline');   
+                domStyle.set('imagelogo', 'display', 'inline');  
+                domStyle.set('headingback', 'display', 'none'); 
                 
                 //Nascondo i bottoni
                 domStyle.set('searchshowcasefilterbutton', 'display', 'inline'); 
@@ -435,6 +455,7 @@ require([
             
             dojo.connect(registry.byId("tabShowcase"), "onBeforeTransitionOut", null, function(){
                 domStyle.set('headingshowcase', 'display', 'none'); 
+                domStyle.set('imagelogo', 'display', 'none');  
                 
                 //Nascondo i bottoni
                 domStyle.set('searchshowcasefilterbutton', 'display', 'none'); 
@@ -447,13 +468,18 @@ require([
                 //Creo il dettaglio dell'offerta
                 createshowcasedetail(); 
                 domStyle.set('headingshowcase', 'display', 'inline');  
+                domStyle.set('headingback', 'display', 'inline'); 
                 selectTab('tabinnershowcaseshowcase');
                 
                 //Setto il merhcantid
                 if(actualobject){
                     actualmerchantid = actualobject.merchantId; 
-                }else{
+                }else if(actualshowcase){
                     actualmerchantid = actualshowcase.merchantId; 
+                }else if(actualevent){
+                    actualmerchantid = actualevent.merchantId; 
+                }else if(actualoffer){
+                    actualmerchantid = actualoffer.merchantId; 
                 }
                             
                 //Elimino eventi, offerte e messaggi
@@ -501,7 +527,7 @@ require([
             });
                         
             //TODO DA COMMENTARE PER NATIVA
-            //onDeviceReady(); 
+            onDeviceReady(); 
        });
 		
         function onDeviceReady() {
@@ -947,30 +973,36 @@ require([
 ****************************************************************************************************************/
 
 selectTab = function(idmess) {
-    registry.byId(idmess).set("selected",true);    
-    
-    var ragsoc = "";
-    if(actualobject){
-        ragsoc = actualobject.ragSoc;
-    }else if(actualshowcase){
-        ragsoc = actualshowcase.ragSoc;
-    }
-    
-    if(idmess=='tabOfferbutton') {
-        dom.byId("headingoffer").innerHTML = "Offerte "+ragsoc;        
-        domStyle.set('favouriteofferbuttonko','display','none');
-        domStyle.set('favouriteofferbuttonok','display','none');        
-    } else if(idmess=='tabEventbutton') {
-        dom.byId("headingevent").innerHTML = "Eventi "+ragsoc;
-        domStyle.set('favouriteeventbuttonko','display','none');
-        domStyle.set('favouriteeventbuttonok','display','none');
-    } else if(idmess=='tabMessagebutton') {
-        dom.byId("headingmessage").innerHTML = "Messaggi "+ragsoc;
-        domStyle.set('favouritemessagebuttonko','display','none');
-        domStyle.set('favouritemessagebuttonok','display','none');
+    try{
+        registry.byId(idmess).set("selected",true);    
+        var ragsoc = "";
+        if(actualobject){
+            ragsoc = actualobject.ragSoc;
+        }else if(actualshowcase){
+            ragsoc = actualshowcase.ragSoc;
+        }
+
+        if(idmess=='tabOfferbutton') {
+            dom.byId("headingoffer").innerHTML = "Offerte "+ragsoc;        
+            domStyle.set('favouriteofferbuttonko','display','none');
+            domStyle.set('favouriteofferbuttonok','display','none');        
+        } else if(idmess=='tabEventbutton') {
+            dom.byId("headingevent").innerHTML = "Eventi "+ragsoc;
+            domStyle.set('favouriteeventbuttonko','display','none');
+            domStyle.set('favouriteeventbuttonok','display','none');
+        } else if(idmess=='tabMessagebutton') {
+            dom.byId("headingmessage").innerHTML = "Messaggi "+ragsoc;
+            domStyle.set('favouritemessagebuttonko','display','none');
+            domStyle.set('favouritemessagebuttonok','display','none');
+        }
+    }catch(e){
+        alert(e);
     }
 };
 
+hideback = function(){
+    domStyle.set('headingback', 'display', 'none');
+};
 
 /****************************************************************************************************************
 *                                   NEWS
@@ -1088,15 +1120,18 @@ opendetailnews = function(id) {
     if(news.objectType=='O'){
         //Apro il dettaglio dell'offerta
         actualoffer = news; 
-        registry.byId("tabNews").performTransition("offerdetail", 1, "slide"); 
+        registry.byId("tabNews").performTransition("offerdetail", 1, "slide");
+         registry.byId("headingback").set("moveTo","tabNews");
     }else if(news.objectType=='E'){
         //Apro il dettaglio dell'evento
         actualevent = news; 
         registry.byId("tabNews").performTransition("eventdetail", 1, "slide"); 
+        registry.byId("headingback").set("moveTo","tabNews");
     }else if(news.objectType=='M'){
         //Apro il dettaglio del messaggio
         actualmessage = news; 
         registry.byId("tabNews").performTransition("messagedetail", 1, "slide"); 
+        registry.byId("headingback").set("moveTo","tabNews");
     }
 };
 
@@ -1234,7 +1269,8 @@ searchoffer = function(filter,append,favourite,page,callback){
 opendetailoffer = function(id) {
    actualoffer = registry.byId(id).get("bean");  
    //Apro il dettaglio dell'offerta
-   registry.byId("tabOffer").performTransition("offerdetail", 1, "slide");    
+   registry.byId("tabOffer").performTransition("offerdetail", 1, "slide"); 
+    registry.byId("headingback").set("moveTo","tabOffer");
 };
 
 
@@ -1371,6 +1407,7 @@ createofferdetail = function(){
             domStyle.set('filterBoxOfferDiv', 'display', 'none');
             dom.byId('filterBoxOffer').value = null;
         }
+      
 };
 
 
@@ -1456,22 +1493,23 @@ searchevent = function(filter,append,favourite,page,callback){
 opendetailevent = function(id) {
    actualevent = registry.byId(id).get("bean");  
    //Apro il dettaglio del evento
-   registry.byId("tabEvent").performTransition("eventdetail", 1, "slide");    
+   registry.byId("tabEvent").performTransition("eventdetail", 1, "slide");  
+    registry.byId("headingback").set("moveTo","tabEvent");
 };
 
 
 favouritesearchevent = function(favourite) {  
     var value = dom.byId('filterBoxEvent').value;
     favouriteevent = favourite;
-    if(favourite) {
-        if(actualmerchantid){
+    if(favouriteevent) {
+        if(!actualmerchantid){
             //Controllo lo stato dei preferiti
             domStyle.set('favouriteeventbuttonko', 'display','none');
             domStyle.set('favouriteeventbuttonok', 'display','inline');
         }
         searchevent(value,false,true,1);    
     } else {
-        if(actualmerchantid){
+        if(!actualmerchantid){
             domStyle.set('favouriteeventbuttonko', 'display','inline');
             domStyle.set('favouriteeventbuttonok', 'display','none');
         }
@@ -1536,15 +1574,15 @@ createeventdetail = function(){
     }  
     
     if(event.ragSoc){
-        msgdate += "</br>"+offer.ragSoc;
+        msgdate += "</br>"+event.ragSoc;
     }
     
     if(event.title){
-        msgdate += "</br>"+offer.title;
+        msgdate += "</br>"+event.title;
     }
                 
     var msgBox = domConstruct.create("div", {class: "innerPaneDetail", innerHTML:msgdate}, pane.domNode);    
-    detailoffer.addChild(pane,0);  
+    detailevent.addChild(pane,0);  
         
     // Visualizzo la descrizione dell'offerta
     if( registry.byId("paneeventdetailhtml")){
@@ -1553,7 +1591,7 @@ createeventdetail = function(){
     
     //Creo il pannello
     panehtml = new Pane({id:"paneeventdetailhtml"});
-    var msgBoxhtml = domConstruct.create("div", {class: "innerPaneDetail", innerHTML:offer.description}, panehtml.domNode);    
+    var msgBoxhtml = domConstruct.create("div", {class: "innerPaneDetail", innerHTML:event.description}, panehtml.domNode);    
     detailevent.addChild(panehtml);
     
     objectId = event.objectId;
@@ -1653,6 +1691,7 @@ opendetailmessage = function(id) {
    actualmessage = registry.byId(id).get("bean");  
    //Apro il dettaglio del evento
    registry.byId("tabMessage").performTransition("messagedetail", 1, "slide");    
+    registry.byId("headingback").set("moveTo","tabMessage");
 };
 
 
@@ -1812,7 +1851,8 @@ searchshowcase = function(filter,append,favourite,page,callback){
 opendetailshowcase = function(id) {
    actualshowcase = registry.byId(id).get("bean");  
    //Apro il dettaglio dell'offerta
-   registry.byId("tabShowcase").performTransition("showcasedetail", 1, "slide");    
+   registry.byId("tabShowcase").performTransition("showcasedetail", 1, "slide");  
+    registry.byId("headingback").set("moveTo","tabShowcase");
 };
 
 
@@ -1865,8 +1905,12 @@ createshowcasedetail = function(){
     
     if(actualobject){
         showcase = actualobject; 
-    }else{
+    }else if(actualshowcase){
         showcase = actualshowcase; 
+    }else if(actualoffer){
+        showcase = actualoffer; 
+    }else if(actualevent){
+        showcase = actualevent; 
     }
     
     //Creo il pannello
@@ -1948,12 +1992,20 @@ scanqrcode = function() {
     cordova.plugins.barcodeScanner.scan(
       function (result) {          
           var urlqrcode = result.text;
-          setMerchantPreferredByQrCode(request,urlqrcode,function(){
+          setMerchantPreferredByQrCode(request,urlqrcode,function(error) {
             stopLoading();
-            createMessage("Negozio inserito nei preferiti!", function(dlg){
-                dlg.hide();
-                dlg.destroyRecursive(false);
-            });
+            if(!error){
+                createMessage("Negozio inserito nei preferiti!", function(dlg){
+                    dlg.hide();
+                    dlg.destroyRecursive(false);
+                });
+            } else {
+                createMessage("Errore inserimento nei preferiti!", function(dlg){
+                    dlg.hide();
+                    dlg.destroyRecursive(false);
+                });
+            }
+            
           });
       }, 
       function (error) {
